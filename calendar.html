@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Календарь — планирование диеты по дням</title>
+<meta name="description" content="Календарь на месяц: расставьте завтраки, обеды, ужины и приёмы перед сном по датам, перенесите готовую пятидневку на любой день и следите за калориями, белком и клетчаткой.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="jspdf.umd.min.js"></script>
+<style>
+.cal-ctl{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:24px}
+.cal-ctl .mon{font-family:var(--disp); font-size:19px; letter-spacing:-.02em;
+  min-width:9ch; text-align:center}
+.cal-ctl .sp{flex:1 1 20px}
+
+.dow{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px}
+.dow span{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--slate); text-align:center; padding:4px 0}
+.cal{display:grid; grid-template-columns:repeat(7,1fr); gap:6px}
+.cell{border:1px solid var(--line); border-radius:3px; background:var(--frost);
+  min-height:110px; padding:7px 8px; text-align:left; cursor:pointer;
+  font-family:inherit; color:inherit; display:flex; flex-direction:column;
+  gap:4px; transition:.12s}
+.cell:hover{border-color:var(--brine)}
+.cell.out{background:transparent; border-color:transparent; cursor:default}
+.cell.today .num{color:#fff; background:var(--brine)}
+.cell[aria-pressed="true"]{border-color:var(--brine); box-shadow:inset 0 0 0 1.5px var(--brine)}
+.cell.target-range{background:var(--ing-bg); border-color:var(--brine)}
+.cell.target-range:hover{border-color:var(--brine-dark)}
+.cal.highlight-deploy .cell.target-range{box-shadow:inset 0 0 0 2px var(--brine); background:var(--ing-bg)}
+.proj-badge{font-family:var(--mono); font-size:9.5px; letter-spacing:.04em;
+  padding:1px 5px; border-radius:3px; background:var(--brine); color:#fff; font-weight:600; white-space:nowrap}
+.num{font-family:var(--mono); font-size:11px; color:var(--slate);
+  width:20px; height:20px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto}
+.mini{font-size:11px; line-height:1.35; color:var(--steel);
+  display:flex; gap:4px; align-items:flex-start}
+.mini i{flex:0 0 auto; width:6px; height:6px; border-radius:2px; margin-top:4px}
+.mini.b i{background:var(--yolk)} .mini.l i{background:var(--brine)} .mini.d i{background:var(--dill)}
+.mini.n i{background:#6A5A8C}
+.mini span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.kc{margin-top:auto; font-family:var(--mono); font-size:10.5px; color:var(--slate)}
+@media(max-width:560px){
+  .cell{min-height:80px; padding:5px 5px}
+  .mini{font-size:10px} .mini span{display:none}
+  .mini{gap:0} .mini i{width:100%; height:4px; border-radius:1px; margin-top:0}
+  .kc{font-size:9.5px}
+}
+
+/* ---- панель дня ---- */
+.day{border:1px solid var(--line); border-radius:4px; background:var(--frost);
+  margin-top:26px; overflow:hidden}
+.day-h{display:flex; align-items:baseline; gap:10px 16px; flex-wrap:wrap;
+  padding:18px 22px; border-bottom:1px solid var(--line); background:#EFF4F5}
+.day-h b{font-family:var(--disp); font-size:18px; letter-spacing:-.02em}
+.day-h em{font-style:normal; font-family:var(--mono); font-size:12px; color:var(--slate)}
+.day-body{display:grid; gap:16px; padding:22px}
+/* Четыре селекта в ряд просят места: на планшете ставим их парами, в один ряд
+   разворачиваем только на широком экране, иначе подписи приёмов ломаются. */
+@media(min-width:620px){.day-body{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.day-body{grid-template-columns:repeat(4,1fr)}}
+.pick label{display:block; font-family:var(--mono); font-size:10.5px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--slate); margin-bottom:6px}
+.pick select{width:100%; font-family:var(--body); font-size:14.5px; color:var(--steel);
+  padding:9px 10px; border:1px solid var(--line); border-radius:3px; background:#fff; cursor:pointer}
+.pick select:hover{border-color:var(--brine)}
+.pick p{margin:8px 0 0; font-family:var(--mono); font-size:11.5px; color:var(--slate)}
+.day-f{padding:14px 22px; border-top:1px solid var(--line); background:#EFF4F5;
+  display:flex; gap:10px 18px; flex-wrap:wrap; align-items:center;
+  font-family:var(--mono); font-size:12px; color:var(--slate)}
+.day-f b{color:var(--steel); font-weight:500}
+
+/* ---- сводка месяца ---- */
+.sum{display:grid; gap:1px; margin-top:24px; background:var(--line);
+  border:1px solid var(--line); border-radius:4px; overflow:hidden}
+@media(min-width:620px){
+  .sum{grid-template-columns:repeat(2,1fr)}
+  /* пять плиток на два столбца не делятся — последнюю растягиваем, иначе
+     в сетке зияет пустая клетка цвета линии */
+  .sum div:last-child{grid-column:1 / -1}
+}
+@media(min-width:960px){
+  .sum{grid-template-columns:repeat(5,1fr)}
+  .sum div:last-child{grid-column:auto}
+}
+.sum div{background:var(--frost); padding:16px 18px}
+.sum span{display:block; font-family:var(--mono); font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:5px}
+.sum b{font-family:var(--disp); font-size:21px; letter-spacing:-.02em}
+.sum-note{margin:12px 0 0; max-width:62ch; font-size:14px; color:var(--slate)}
+.hint{margin:0 0 24px; max-width:58ch; font-size:15px; color:var(--slate)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="index.html">Заготовка <span>·</span> свой план</a>
+    <nav class="nav">
+      <a href="profile.html">Профиль</a>
+      <a href="index.html">Рецепты</a>
+      <a href="plan.html">Конструктор</a>
+      <a href="calendar.html" aria-current="page">Календарь</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero wrap">
+  <h1>Вся диета<br>на одном <em>листе</em><br>календаря.</h1>
+  <p class="lede">Нажмите на день, чтобы поставить завтрак, обед, ужин и приём
+    перед сном. Пятидневку из <a href="plan.html">конструктора</a> можно разложить
+    сразу, начиная с выбранной даты.</p>
+</section>
+
+<section class="sec wrap">
+  <div class="cal-ctl noprint">
+    <button class="btn" id="prev" aria-label="Предыдущий месяц">←</button>
+    <span class="mon" id="mon"></span>
+    <button class="btn" id="next" aria-label="Следующий месяц">→</button>
+    <select id="cal-saved-plans-select" class="saved-plans-select" style="padding:7px 12px; border:1px solid var(--line); border-radius:4px; font-family:inherit; font-size:13.5px; background:#FFFFFF; color:var(--steel); cursor:pointer" title="Выберите рацион для разложения">
+      <option value="draft">Текущий черновик из конструктора</option>
+    </select>
+    <button class="btn btn-solid" id="apply">Разложить в календарь</button>
+    <button class="btn" id="btn-export-pdf" onclick="exportCalendarPDF()">Экспорт в PDF</button>
+    <button class="btn" id="btn-export-jpg" onclick="exportCalendarJPG()">Скачать JPG</button>
+    <button class="btn" id="wipe">Очистить месяц</button>
+  </div>
+  <p class="hint">Точки в клетке — заполненные приёмы: <b>жёлтая</b> завтрак,
+    <b>синяя</b> обед, <b>зелёная</b> ужин, <b>фиолетовая</b> перед сном.</p>
+
+  <div class="dow">
+    <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span>
+    <span>Пт</span><span>Сб</span><span>Вс</span>
+  </div>
+  <div class="cal" id="cal"></div>
+
+  <div class="day" id="day"></div>
+  <div class="sum" id="sum"></div>
+  <p class="sum-note">Статистика и средние показатели рассчитаны по всем зафиксированным в календаре дням — без добора перекусами, который предлагает <a href="plan.html">конструктор</a>.</p>
+</section>
+</main>
+
+<footer class="foot wrap">
+  <span>Календарь сохраняется в браузере</span>
+  <span><a href="plan.html">Собрать закупку →</a></span>
+</footer>
+
+<script src="data.js"></script>
+<script src="dishes-b.js"></script>
+<script src="dishes-l.js"></script>
+<script src="dishes-d.js"></script>
+<script src="dishes-n.js"></script>
+<script src="app.js"></script>
+<script src="profile.js"></script>
+<script src="drawer.js"></script>
+<script>
+var MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+              'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+var DOW = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+
+var cal = load('mp-cal', {});          /* { '2026-07-31': {b:id,l:id,d:id,n:id} } */
+var today = new Date();
+var todayKey = key(today);
+var view = { y: today.getFullYear(), m: today.getMonth() };
+var picked = todayKey;
+
+function key(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+function parseKey(k) {
+  var p = k.split('-');
+  return new Date(+p[0], +p[1] - 1, +p[2]);
+}
+
+/* ---- сетка месяца ---- */
+function drawCal() {
+  document.getElementById('mon').textContent = MONTHS[view.m] + ' ' + view.y;
+
+  var planDaysCount = load('mp-plan-days', 5);
+  var calMeta = load('mp-cal-meta', null);
+
+  // 1. Фиксированные дни уже разложенного плана
+  var deployedMap = {};
+  if (calMeta && calMeta.startDate) {
+    var depStart = parseKey(calMeta.startDate);
+    for (var dIdx = 0; dIdx < (calMeta.days || 5); dIdx++) {
+      var dObj = new Date(depStart.getFullYear(), depStart.getMonth(), depStart.getDate() + dIdx);
+      deployedMap[key(dObj)] = dIdx + 1;
+    }
+  }
+
+  // 2. Предпросмотр (только при наведении на кнопку "Разложить")
+  var calEl = document.getElementById('cal');
+  var isHoveringApply = calEl && calEl.classList.contains('highlight-deploy');
+  var previewMap = {};
+  if (isHoveringApply) {
+    var startPicked = parseKey(picked);
+    for (var p = 0; p < planDaysCount; p++) {
+      var pd = new Date(startPicked.getFullYear(), startPicked.getMonth(), startPicked.getDate() + p);
+      previewMap[key(pd)] = p + 1;
+    }
+  }
+
+  // Обновляем текст кнопки раскладки плана
+  var applyBtn = document.getElementById('apply');
+  if (applyBtn) {
+    var pDate = parseKey(picked);
+    applyBtn.textContent = 'Разложить план (' + planDaysCount + ' ' + plural(planDaysCount, 'день') + ') с ' + pDate.getDate() + ' ' + MONTHS[pDate.getMonth()].toLowerCase();
+  }
+
+  var first = new Date(view.y, view.m, 1);
+  var shift = (first.getDay() + 6) % 7;              /* неделя с понедельника */
+  var start = new Date(view.y, view.m, 1 - shift);
+  var html = '';
+
+  for (var i = 0; i < 42; i++) {
+    var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    var k = key(d), inMonth = d.getMonth() === view.m;
+    if (!inMonth && i >= 35) continue;
+    if (!inMonth) { html += '<div class="cell out"></div>'; continue; }
+
+    var depDay = deployedMap[k];
+    var prevDay = previewMap[k];
+    var isProjected = !!prevDay;
+    var isDeployed = !!depDay;
+    var e = cal[k] || {};
+    var cls = 'cell' + (k === todayKey ? ' today' : '');
+    var t = { p: 0, kcal: 0 };
+    var rows = MEALS.map(function (m) {
+      var dish = BY_ID[e[m.key]];
+      if (!dish) return '';
+      t.kcal += dish.mac.kcal; t.p += dish.mac.p;
+      return '<span class="mini ' + m.key + '"><i></i><span>' + esc(dish.short) + '</span></span>';
+    }).join('');
+
+    var numHeader = '<div style="display:flex; justify-content:flex-start; align-items:center; width:100%">' +
+      '<span class="num">' + d.getDate() + '</span>' +
+      '</div>';
+
+    html += '<button class="' + cls + '" data-k="' + k + '"' +
+      ' aria-pressed="' + (k === picked) + '"' +
+      ' aria-label="' + d.getDate() + ' ' + MONTHS[view.m].toLowerCase() + '">' +
+      numHeader + rows +
+      '<span class="kc">' + (t.kcal ? t.kcal + ' ккал' : '') + '</span></button>';
+  }
+  document.getElementById('cal').innerHTML = html;
+
+  Array.prototype.forEach.call(document.querySelectorAll('.cell[data-k]'), function (c) {
+    c.addEventListener('click', function () { picked = c.dataset.k; drawCal(); drawDay(); });
+  });
+  drawSum();
+}
+
+/* ---- панель выбранного дня ---- */
+function drawDay() {
+  var d = parseKey(picked), e = cal[picked] || {};
+  /* Считаем через dayCheck из app.js: он же считает клетчатку и знает про
+     PROFILE. Для этого день превращаем в план из одной колонки. */
+  var pseudo = {};
+  MEALS.forEach(function (m) { pseudo[m.key] = [e[m.key] || '']; });
+  var t = dayCheck(pseudo, 0).totals;
+
+  document.getElementById('day').innerHTML =
+    '<div class="day-h"><b>' + d.getDate() + ' ' + MONTHS[d.getMonth()].toLowerCase() + '</b>' +
+      '<em>' + DOW[d.getDay()] + '</em>' +
+      (picked === todayKey ? '<span class="badge l">сегодня</span>' : '') + '</div>' +
+    '<div class="day-body">' + MEALS.map(function (m) {
+      var cur = e[m.key] || '';
+      var dish = BY_ID[cur];
+      return '<div class="pick">' +
+        '<label for="p-' + m.key + '">' + m.name + '</label>' +
+        '<select id="p-' + m.key + '" data-meal="' + m.key + '">' +
+          '<option value="">— пусто —</option>' +
+          dishesFor(m.key).map(function (x) {
+            return '<option value="' + x.id + '"' + (x.id === cur ? ' selected' : '') + '>' +
+              esc(x.short) + '</option>';
+          }).join('') +
+        '</select>' +
+        '<p>' + (dish ? dish.mac.p + ' Б · ' + dish.mac.f + ' Ж · ' + dish.mac.c +
+          ' У · ' + dish.mac.kcal + ' ккал' : 'не выбрано') + '</p>' +
+      '</div>';
+    }).join('') + '</div>' +
+    '<div class="day-f"><span>Итог дня: <b>' + t.p + '</b> Б · <b>' + t.f +
+      '</b> Ж · <b>' + t.c + '</b> У · <b>' + t.fib + '</b> клетчатки · <b>' +
+      t.kcal + '</b> ккал</span>' +
+      '<span>приёмов: <b>' + t.n + ' / ' + MEALS.length + '</b></span>' +
+      '<button class="btn noprint" id="dayclear">Очистить день</button></div>';
+
+  Array.prototype.forEach.call(document.querySelectorAll('#day select'), function (s) {
+    s.addEventListener('change', function () {
+      if (!cal[picked]) cal[picked] = {};
+      if (s.value) cal[picked][s.dataset.meal] = s.value;
+      else delete cal[picked][s.dataset.meal];
+      if (!Object.keys(cal[picked]).length) delete cal[picked];
+      save('mp-cal', cal); drawCal(); drawDay();
+    });
+  });
+  document.getElementById('dayclear').addEventListener('click', function () {
+    delete cal[picked]; save('mp-cal', cal); drawCal(); drawDay();
+  });
+}
+
+/* ---- сводка на экране ---- */
+function drawSum() {
+  var days = 0, kcal = 0, prot = 0, fib = 0, slots = 0;
+
+  Object.keys(cal).forEach(function (k) {
+    var any = false;
+    MEALS.forEach(function (m) {
+      if (cal[k] && cal[k][m.key]) {
+        var dish = BY_ID[cal[k][m.key]];
+        if (dish) {
+          kcal += dish.mac.kcal; prot += dish.mac.p; fib += dish.fib || 0;
+          slots++; any = true;
+        }
+      }
+    });
+    if (any) days++;
+  });
+
+  var sumEl = document.getElementById('sum');
+  if (sumEl) {
+    sumEl.innerHTML =
+      box('Дней спланировано', days || '—') +
+      box('Приёмов расставлено', slots ? slots + ' / ' + (days * MEALS.length) : '—') +
+      box('Калорий в среднем за день', days ? Math.round(kcal / days) : '—') +
+      box('Белка в среднем за день', days ? Math.round(prot / days) + ' г' : '—') +
+      box('Клетчатки в среднем за день', days ? Math.round(fib / days) + ' г' : '—');
+  }
+}
+function box(label, value) {
+  return '<div><span>' + label + '</span><b>' + value + '</b></div>';
+}
+
+
+function box(label, value) {
+  return '<div><span>' + label + '</span><b>' + value + '</b></div>';
+}
+
+function populateCalendarSavedPlansDropdown() {
+  var select = document.getElementById('cal-saved-plans-select');
+  if (!select) return;
+  var plans = typeof getSavedPlans === 'function' ? getSavedPlans() : [];
+  select.innerHTML = '<option value="draft">Текущий черновик из конструктора</option>' +
+    plans.map(function(p) {
+      var days = p.days || 5;
+      return '<option value="' + p.id + '">' + esc(p.name) + ' (' + days + ' дн.)</option>';
+    }).join('');
+}
+
+/* ---- разложить план из конструктора или профиля ---- */
+document.getElementById('apply').addEventListener('click', function () {
+  var select = document.getElementById('cal-saved-plans-select');
+  var selectedId = select ? select.value : 'draft';
+
+  if (selectedId !== 'draft') {
+    var plans = typeof getSavedPlans === 'function' ? getSavedPlans() : [];
+    var targetPlan = plans.find(function(p) { return p.id === selectedId; });
+    if (!targetPlan) return;
+
+    var planDaysCount = targetPlan.days || 5;
+    var planData = targetPlan.plan || {};
+    var start = parseKey(picked);
+
+    for (var i = 0; i < planDaysCount; i++) {
+      var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      var k = key(d), e = {};
+      MEALS.forEach(function (m) {
+        if (planData[m.key] && planData[m.key][i]) e[m.key] = planData[m.key][i];
+      });
+      if (Object.keys(e).length) cal[k] = e; else delete cal[k];
+    }
+    save('mp-cal-meta', { startDate: key(start), days: planDaysCount });
+    save('mp-cal', cal);
+
+    drawCal(); drawDay();
+    showCustomToast('Рацион "' + targetPlan.name + '" разложен в календарь!');
+    return;
+  }
+
+  var plan = load('mp-plan', null);
+  var hasDishes = false;
+  if (plan) {
+    ['b', 'l', 'd', 'n'].forEach(function(k) {
+      if (plan[k] && plan[k].length > 0) hasDishes = true;
+    });
+  }
+
+  if (!plan || !hasDishes) {
+    showCustomAlert('План не собран', 'Сначала соберите рацион в конструкторе или выберите сохранённый рацион из профиля.');
+    return;
+  }
+
+  var planDaysCount = load('mp-plan-days', 5);
+  var start = parseKey(picked);
+  var defaultName = 'План ' + (getSavedPlans().length + 1);
+
+  showCustomPrompt({
+    title: 'Сохранить план в профиль?',
+    subtitle: 'Хотите автоматически сохранить этот рацион в Профиле под удобным именем?',
+    defaultValue: defaultName,
+    confirmText: 'Сохранить и разложить',
+    onConfirm: function(customName) {
+      var nameToSave = (typeof customName === 'string' && customName.trim()) ? customName.trim() : defaultName;
+      saveCurrentPlanAs(nameToSave);
+
+      for (var i = 0; i < planDaysCount; i++) {
+        var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+        var k = key(d), e = {};
+        MEALS.forEach(function (m) {
+          if (plan[m.key] && plan[m.key][i]) e[m.key] = plan[m.key][i];
+        });
+        if (Object.keys(e).length) cal[k] = e; else delete cal[k];
+      }
+      save('mp-cal-meta', { startDate: key(start), days: planDaysCount });
+      save('mp-cal', cal);
+
+      var emptyPlan = { b: [], l: [], d: [], n: [] };
+      save('mp-plan', emptyPlan);
+
+      drawCal(); drawDay();
+      populateCalendarSavedPlansDropdown();
+      showCustomToast('План "' + nameToSave + '" сохранён в Профиле и разложен!');
+    }
+  });
+});
+
+var applyBtn = document.getElementById('apply');
+if (applyBtn) {
+  applyBtn.addEventListener('mouseenter', function () {
+    var calEl = document.getElementById('cal');
+    if (calEl) calEl.classList.add('highlight-deploy');
+    drawCal();
+  });
+  applyBtn.addEventListener('mouseleave', function () {
+    var calEl = document.getElementById('cal');
+    if (calEl) calEl.classList.remove('highlight-deploy');
+    drawCal();
+  });
+}
+document.getElementById('wipe').addEventListener('click', function () {
+  var monthName = MONTHS[view.m].toLowerCase();
+  showCustomConfirm({
+    title: 'Очистить календарь',
+    subtitle: 'Вы уверены, что хотите полностью очистить календарь за ' + monthName + ' ' + view.y + ' года?',
+    confirmText: 'Очистить',
+    isDanger: true,
+    onConfirm: function() {
+      Object.keys(cal).forEach(function (k) {
+        var d = parseKey(k);
+        if (d.getFullYear() === view.y && d.getMonth() === view.m) delete cal[k];
+      });
+      localStorage.removeItem('mp-cal-meta');
+      save('mp-cal', cal); drawCal(); drawDay();
+      showCustomToast('Календарь за ' + monthName + ' очищен');
+    }
+  });
+});
+document.getElementById('prev').addEventListener('click', function () {
+  view.m--; if (view.m < 0) { view.m = 11; view.y--; } drawCal();
+});
+document.getElementById('next').addEventListener('click', function () {
+  view.m++; if (view.m > 11) { view.m = 0; view.y++; } drawCal();
+});
+
+drawCal();
+drawDay();
+populateCalendarSavedPlansDropdown();
+
+/* ---- генерация canvas календаря для экспорта ---- */
+function generateCalendarCanvas() {
+  var canvas = document.createElement('canvas');
+  canvas.width = 1240;
+  canvas.height = 1754;
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  // Фон
+  ctx.fillStyle = '#F4F7F6';
+  ctx.fillRect(0, 0, 1240, 1754);
+
+  // Шапка экспорта
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(40, 40, 1160, 100);
+  ctx.strokeStyle = '#DDE4E4';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(40, 40, 1160, 100);
+
+  ctx.fillStyle = '#146C7E';
+  ctx.font = 'bold 13px monospace, sans-serif';
+  ctx.fillText('ЗАГОТОВКА · КАЛЕНДАРЬ РАЦИОНА ПИТАНИЯ', 64, 72);
+
+  var monthTitle = MONTHS[view.m] + ' ' + view.y;
+  ctx.fillStyle = '#16242B';
+  ctx.font = 'bold 26px system-ui, sans-serif';
+  ctx.fillText(monthTitle, 64, 110);
+
+  var deployedMeta = load('mp-cal-meta', null);
+  if (deployedMeta && deployedMeta.startDate) {
+    var pStart = parseKey(deployedMeta.startDate);
+    ctx.font = '500 13px system-ui, sans-serif';
+    ctx.fillStyle = '#586E78';
+    ctx.textAlign = 'right';
+    ctx.fillText('План на ' + (deployedMeta.days || 5) + ' дней с ' + pStart.getDate() + ' ' + MONTHS[pStart.getMonth()].toLowerCase(), 1176, 92);
+    ctx.textAlign = 'left';
+  }
+
+  // Заголовки дней недели (ПН .. ВС)
+  var dows = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+  var startX = 40;
+  var startY = 160;
+  var colW = 162;
+  var gapX = 4;
+  var gapY = 6;
+  var cellH = 180;
+
+  ctx.font = 'bold 12px monospace, sans-serif';
+  ctx.fillStyle = '#586E78';
+  dows.forEach(function(dow, idx) {
+    var x = startX + idx * (colW + gapX);
+    ctx.fillText(dow, x + 8, startY + 16);
+  });
+
+  // Расчет высоты ячеек под всю высоту листа
+  var first = new Date(view.y, view.m, 1);
+  var shift = (first.getDay() + 6) % 7;
+  var start = new Date(view.y, view.m, 1 - shift);
+
+  var gridY = startY + 28;
+  var totalRows = 5;
+  for (var checkIdx = 35; checkIdx < 42; checkIdx++) {
+    var cd = new Date(start.getFullYear(), start.getMonth(), start.getDate() + checkIdx);
+    if (cd.getMonth() === view.m) { totalRows = 6; break; }
+  }
+
+  var availableH = 1460;
+  var cellH = Math.floor((availableH - (totalRows - 1) * gapY) / totalRows);
+
+  var mealColors = { b: '#F59E0B', l: '#0EA5E9', d: '#10B981', n: '#8B5CF6' };
+  var rowIdx = 0;
+
+  for (var i = 0; i < 42; i++) {
+    var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    var k = key(d);
+    var inMonth = d.getMonth() === view.m;
+    var colIdx = i % 7;
+    if (colIdx === 0 && i > 0) rowIdx++;
+    if (!inMonth && i >= 35) continue;
+
+    var cellX = startX + colIdx * (colW + gapX);
+    var cellY = gridY + rowIdx * (cellH + gapY);
+
+    if (!inMonth) {
+      ctx.fillStyle = '#EBEFEF';
+      ctx.fillRect(cellX, cellY, colW, cellH);
+      continue;
+    }
+
+    // Чистая белая ячейка карточки
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(cellX, cellY, colW, cellH);
+
+    ctx.strokeStyle = '#DDE4E4';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(cellX, cellY, colW, cellH);
+
+    // Номер дня
+    ctx.font = 'bold 16px system-ui, sans-serif';
+    ctx.fillStyle = '#16242B';
+    ctx.fillText(String(d.getDate()), cellX + 12, cellY + 24);
+
+    // Приёмы пищи
+    var e = cal[k] || {};
+    var itemY = cellY + 52;
+    var dayKcal = 0;
+
+    MEALS.forEach(function(m) {
+      var dish = BY_ID[e[m.key]];
+      if (!dish) return;
+      dayKcal += (dish.mac ? dish.mac.kcal : 0);
+
+      // Точка категории
+      ctx.fillStyle = mealColors[m.key] || '#586E78';
+      ctx.beginPath();
+      ctx.arc(cellX + 14, itemY - 4, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Название блюда
+      ctx.font = '500 12px system-ui, sans-serif';
+      ctx.fillStyle = '#16242B';
+      var shortName = dish.short || dish.name;
+      if (shortName.length > 17) shortName = shortName.slice(0, 16) + '…';
+      ctx.fillText(shortName, cellX + 24, itemY);
+
+      itemY += 26;
+    });
+
+    // Калории внизу ячейки
+    if (dayKcal > 0) {
+      ctx.font = 'bold 11px monospace, sans-serif';
+      ctx.fillStyle = '#586E78';
+      ctx.fillText(dayKcal + ' ккал', cellX + 12, cellY + cellH - 12);
+    }
+  }
+
+  // Подвал
+  ctx.strokeStyle = '#C4D1D5';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(40, 1690);
+  ctx.lineTo(1200, 1690);
+  ctx.stroke();
+
+  ctx.fillStyle = '#586E78';
+  ctx.font = '13px monospace, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Заготовка · Персональный рацион питания', 620, 1720);
+
+  return canvas;
+}
+
+function exportCalendarPDF() {
+  var canvas = generateCalendarCanvas();
+  if (!canvas) return;
+
+  var btn = document.getElementById('btn-export-pdf');
+  var origText = btn ? btn.textContent : '';
+  if (btn) btn.textContent = '⏳ Генерируется PDF...';
+
+  setTimeout(function() {
+    try {
+      var imgData = canvas.toDataURL('image/jpeg', 0.95);
+      var jsPDFClass = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+
+      if (jsPDFClass) {
+        var pdf = new jsPDFClass('p', 'mm', 'a4');
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+        var mName = MONTHS[view.m];
+        pdf.save('Календарь-рациона-' + mName + '-' + view.y + '.pdf');
+      } else {
+        alert('Библиотека PDF загружается, попробуйте еще раз через секунду или скачайте JPG.');
+      }
+    } catch(err) {
+      console.error('PDF export error:', err);
+      alert('Ошибка при экспорте PDF: ' + err.message);
+    }
+    if (btn) btn.textContent = origText;
+  }, 100);
+}
+
+function exportCalendarJPG() {
+  var canvas = generateCalendarCanvas();
+  if (!canvas) return;
+
+  var btn = document.getElementById('btn-export-jpg');
+  var origText = btn ? btn.textContent : '';
+  if (btn) btn.textContent = '⏳ Генерируется JPG...';
+
+  setTimeout(function() {
+    try {
+      var imgData = canvas.toDataURL('image/jpeg', 0.95);
+      var link = document.createElement('a');
+      var mName = MONTHS[view.m];
+      link.download = 'Календарь-рациона-' + mName + '-' + view.y + '.jpg';
+      link.href = imgData;
+      link.click();
+    } catch(err) {
+      console.error('JPG export error:', err);
+    }
+    if (btn) btn.textContent = origText;
+  }, 100);
+}
+</script>
+<!-- impeccable-live-start -->
+<script src="http://localhost:8401/live.js?token=4fa6ded7-7332-4de5-94ee-8a15176c392f"></script>
+<!-- impeccable-live-end -->
+</body>
+</html>

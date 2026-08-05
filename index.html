@@ -1,0 +1,1098 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Рецепты — завтраки, обеды, ужины и приёмы перед сном</title>
+<meta name="description" content="75 рецептов с разметкой по приёмам пищи: завтраки, обеды, лёгкие ужины и казеиновые приёмы перед сном. БЖУ и клетчатка на порцию, пошаговое приготовление, сроки хранения.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ---- базовый чип (переопределяет style.css для этой страницы) ---- */
+.chip{font-family:var(--mono); font-size:12px; padding:6px 11px; border-radius:3px;
+  border:1px solid var(--line); background:var(--frost); color:var(--slate);
+  cursor:pointer; transition:.15s; white-space:nowrap}
+.chip:hover{border-color:var(--brine); color:var(--brine)}
+.chip[aria-pressed="true"]{background:var(--brine); border-color:var(--brine);
+  color:#fff; font-weight:600}
+
+/* ---- единый блок фильтра ---- */
+.filter-box{
+  margin-top:36px;
+  border:1px solid var(--line);
+  border-radius:4px;
+  background:var(--frost);
+  padding:16px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* строка: таблетки приёмов + разделитель + таблетки тегов + вид справа */
+.filter-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.filter-pills{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.filter-divider{
+  width:1px;
+  height:22px;
+  background:var(--line);
+  flex-shrink:0;
+  margin:0 4px;
+}
+.filter-spacer{ flex:1 1 0; }
+
+/* кнопки вида каталога (мелкие, справа) */
+.view-toggle{
+  display:flex;
+  gap:4px;
+  flex-shrink:0;
+}
+.view-btn{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.06em;
+  padding:5px 10px;
+  border-radius:3px;
+  border:1px solid var(--line);
+  background:var(--ice);
+  color:var(--slate);
+  cursor:pointer;
+  transition:.15s;
+  white-space:nowrap;
+}
+.view-btn:hover{border-color:var(--brine); color:var(--brine)}
+.view-btn[aria-pressed="true"]{
+  background:var(--ing-bg);
+  border-color:var(--brine);
+  color:var(--brine);
+  font-weight:600;
+}
+
+/* строка счётчика */
+.count-row{display:flex; justify-content:space-between; align-items:center; gap:8px}
+.count{font-family:var(--mono); font-size:11.5px; color:var(--slate); margin:0}
+
+/* ---- навигационные аккордеоны ---- */
+.jump{display:flex; flex-direction:column; gap:8px; margin-top:24px}
+.jump-col{border:1px solid var(--line); border-radius:4px; background:var(--frost); overflow:hidden}
+.jump-summary{padding:12px 16px; cursor:pointer; user-select:none;
+  display:flex; justify-content:space-between; align-items:center; list-style:none; transition:.12s}
+.jump-summary::-webkit-details-marker{display:none}
+.jump-summary:hover{background:var(--ing-bg)}
+.jump-summary h2{font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--brine); font-weight:600; margin:0}
+.jump-arrow{font-size:11px; color:var(--slate); transition:transform .2s ease}
+.jump-col[open] .jump-arrow{transform:rotate(180deg)}
+.jump-col[open] .jump-summary{border-bottom:1px solid var(--line); background:var(--ing-bg)}
+.jump-links{padding:12px 18px 16px; display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:6px 24px}
+.jump-links a{display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+  padding:6px 0; color:var(--steel); text-decoration:none; font-size:13.5px;
+  border-bottom:1px dotted var(--line); transition:.12s}
+.jump-links a:hover{color:var(--brine)}
+.jump-links a em{font-style:normal; font-family:var(--mono); font-size:11px; color:var(--slate); white-space:nowrap}
+
+/* ---- группы рецептов ---- */
+.group{padding:56px 0 0; border-top:1px solid var(--line); margin-top:40px}
+.group-h{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:28px}
+.group-h h2{font-family:var(--disp); font-size:clamp(22px,3.2vw,32px); letter-spacing:-.025em}
+.group-h p{margin:0; font-size:15px; color:var(--slate); flex:1 1 260px}
+.rec[hidden]{display:none}
+.tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:14px}
+.tag{font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:3px;
+  background:var(--ing-bg); color:var(--slate); white-space:nowrap;
+  border:1px solid var(--line)}
+.rules{display:grid; gap:0; margin-top:30px; border:1px solid var(--line);
+  border-radius:4px; background:var(--frost); overflow:hidden}
+@media(min-width:760px){.rules{grid-template-columns:repeat(2,1fr)}}
+.rule{padding:18px 22px; border-bottom:1px solid var(--line)}
+@media(min-width:760px){.rule:nth-child(odd){border-right:1px solid var(--line)}}
+.rule h3{font-family:var(--mono); font-weight:500; font-size:11px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--brine); margin-bottom:7px}
+.rule p{margin:0; font-size:14.5px; color:var(--slate)}
+.empty{padding:26px; text-align:center; color:var(--slate); font-size:15px;
+  border:1px dashed var(--line); border-radius:4px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="index.html">Заготовка <span>·</span> свой план</a>
+    <nav class="nav">
+      <a href="profile.html">Профиль</a>
+      <a href="index.html" aria-current="page">Рецепты</a>
+      <a href="plan.html">Конструктор</a>
+      <a href="calendar.html">Календарь</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- Левое плавающее меню собираемого плана -->
+<aside class="plan-sidebar" id="plan-sidebar" aria-label="Ваш собираемый рацион">
+  <div class="plan-sidebar-header">
+    <div class="plan-sidebar-title">Ваш план</div>
+    <div class="plan-sidebar-actions">
+      <button class="plan-sidebar-reset-btn" onclick="resetCurrentPlan()" title="Сбросить выбранные блюда">Сбросить</button>
+      <div class="plan-sidebar-count" id="plan-sidebar-count">0 / 4</div>
+      <button class="plan-sidebar-toggle-btn" id="plan-sidebar-toggle-btn" onclick="togglePlanSidebar()" title="Свернуть / Развернуть панель">—</button>
+    </div>
+  </div>
+  <div class="plan-sidebar-slots" id="plan-sidebar-slots"></div>
+  <div class="plan-sidebar-footer">
+    <div class="plan-sidebar-summary" id="plan-sidebar-summary">
+      <span>Выберите 4 блюда</span>
+    </div>
+    <button class="plan-sidebar-rand-btn" onclick="randomizeCurrentPlan()" title="Сгенерировать случайный сбалансированный рацион">Случайный план</button>
+    <a href="plan.html" class="plan-sidebar-go-btn">Перейти к закупке →</a>
+  </div>
+</aside>
+
+<section class="hero wrap">
+  <h1>Семьдесят пять блюд<br>для <em>своего плана</em><br>питания.</h1>
+  <p class="lede">Завтраки, обеды, лёгкие ужины и приёмы перед сном — с БЖУ и клетчаткой
+    на порцию, пошаговым приготовлением и сроком хранения. Собрать из них неделю
+    можно в <a href="plan.html">конструкторе</a>.</p>
+
+  <details class="rules-spoiler" id="rules-details">
+    <summary class="rules-summary">
+      <span>6 научных правил составления тарелки</span>
+      <span class="summary-tag"><span class="summary-tag-text"></span></span>
+    </summary>
+    <div class="rules" id="rules"></div>
+  </details>
+
+  <details class="rules-spoiler proof-spoiler" id="proof-details">
+    <summary class="rules-summary">
+      <span>Доли калорий и БЖУ в порциях</span>
+      <span class="summary-tag"><span class="summary-tag-text"></span></span>
+    </summary>
+    <div class="proof">
+      <div class="proof-h">
+        <h2>Баланс макронутриентов</h2>
+        <div class="key">
+          <span class="k-p"><i></i>Белки</span>
+          <span class="k-f"><i></i>Жиры</span>
+          <span class="k-c"><i></i>Углеводы</span>
+        </div>
+      </div>
+      <div class="bars" id="bars"></div>
+    </div>
+  </details>
+
+  <div class="filter-box">
+    <div class="search-wrap">
+      <input type="search" id="f-search" class="search-input" placeholder="Поиск по названию или ингредиентам…" aria-label="Поиск по блюдам">
+      <kbd class="search-kbd">/</kbd>
+    </div>
+    <div class="filter-row">
+      <div class="filter-pills" id="f-meal"></div>
+      <div class="filter-divider"></div>
+      <div class="filter-pills" id="f-tag"></div>
+      <div class="filter-spacer"></div>
+      <div class="view-toggle">
+        <button class="view-btn" id="btn-mode-meal" aria-pressed="true" onclick="setGroupMode('meal')" title="По приёмам пищи">По приёмам</button>
+        <button class="view-btn" id="btn-mode-matrix" aria-pressed="false" onclick="setGroupMode('matrix')" title="По базам и типам заготовок">По заготовкам</button>
+      </div>
+    </div>
+    <div class="count-row">
+      <p class="count" id="count"></p>
+      <button class="btn-reset" id="btn-reset" hidden onclick="resetAllFilters()">Сбросить ✕</button>
+    </div>
+  </div>
+
+  <div class="jump" id="jump"></div>
+</section>
+
+<div id="groups"></div>
+
+<div id="empty-state" class="empty-card wrap" hidden>
+  <h3>Блюд по выбранным критериям не найдено</h3>
+  <p>Попробуйте изменить поисковый запрос или сбросить активные фильтры.</p>
+  <button class="btn btn-solid" onclick="resetAllFilters()">Сбросить все фильтры</button>
+</div>
+
+<!-- Боковая шторка просмотра рецепта -->
+<div class="drawer-backdrop" id="drawer-backdrop">
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <button class="drawer-close" id="drawer-close-btn" aria-label="Закрыть">✕</button>
+      <div id="drawer-head-content"></div>
+    </div>
+    <div class="drawer-body" id="drawer-body-content"></div>
+  </div>
+</div>
+</main>
+
+
+
+
+
+
+
+
+<footer class="foot wrap">
+  <span>БЖУ и клетчатка — расчёт на одну порцию</span>
+  <span><a href="plan.html">Собрать неделю →</a></span>
+</footer>
+
+<script src="data.js"></script>
+<script src="dishes-b.js"></script>
+<script src="dishes-l.js"></script>
+<script src="dishes-d.js"></script>
+<script src="dishes-n.js"></script>
+<script src="app.js"></script>
+<script src="profile.js"></script>
+<script src="drawer.js"></script>
+<script>
+function renderRules() {
+  var rulesEl = document.getElementById('rules');
+  if (!rulesEl) return;
+  var pMinMax = (typeof PROFILE !== 'undefined' && PROFILE.p) ? (PROFILE.p.min + '–' + PROFILE.p.max) : '160–200';
+
+  var RULES = [
+    ['Порядок внутри тарелки',
+     'Сначала овощи и зелень, потом белок и жир, углеводы последними. В исследовании Shukla ' +
+     'и коллег (2015) такой порядок снижал пик глюкозы примерно на 29–37 % по сравнению ' +
+     'с тем же обедом, съеденным в обратном порядке.'],
+    ['Крахмал через холод',
+     'Картофель, рис, гречку и макароны варят заранее и держат в холодильнике сутки и дольше: ' +
+     'часть крахмала ретроградирует в резистентный (RS3), который расщепляется только в толстой кишке.'],
+    ['Тридцать видов растений',
+     'American Gut Project зафиксировал: у тех, кто съедает за неделю 30+ разных видов растений, ' +
+     'микробиота существенно разнообразнее, чем у тех, кто ест 10 видов или меньше.'],
+    ['Жирная рыба два–три раза в неделю',
+     'Лосось, скумбрия, сардины, форель. Помечены знаком «омега-3»: в плане их видно ' +
+     'по счётчику, чтобы не пропустить неделю.'],
+    ['Белок дозами по 20–40 г',
+     'Четыре приёма вместо трёх: организм не умеет впрок запасать аминокислоты, ' +
+     'поэтому ' + pMinMax + ' г в день разносятся по дню, а не съедаются за раз.'],
+    ['Казеин перед сном',
+     '30–40 г творога или скира за полчаса до сна: казеин переваривается 6–7 часов ' +
+     'и держит аминокислоты в крови всю ночь. Углеводов в этом приёме почти нет.']
+  ];
+  rulesEl.innerHTML = RULES.map(function (r) {
+    return '<div class="rule"><h3>' + esc(r[0]) + '</h3><p>' + esc(r[1]) + '</p></div>';
+  }).join('');
+}
+
+function renderBars() {
+  var barsEl = document.getElementById('bars');
+  if (!barsEl) return;
+  var pick = ['oat-raspberry', 'salmon-potato', 'pumpkin-sardines', 'tvorog-cinnamon'];
+  var MEAL_TITLES = { b: 'Завтрак', l: 'Обед', d: 'Ужин', n: 'Перекус' };
+  barsEl.innerHTML = pick.filter(function (id) { return BY_ID[id]; })
+    .map(function (id) {
+    var d = BY_ID[id], m = d.mac;
+    var cp = m.p * 4, cf = m.f * 9, cc = m.c * 4, tot = cp + cf + cc;
+    function pct(x) { return Math.round(x / tot * 100); }
+    var mTitle = MEAL_TITLES[d.meal] || '';
+    return '<div class="bar-row">' +
+      '<div class="bar-lbl"><span class="badge ' + d.meal + '">' + mTitle + '</span></div>' +
+      '<div class="bar" role="img" aria-label="' + mTitle + ': ' + m.p + ' г белка, ' +
+        m.f + ' г жиров, ' + m.c + ' г углеводов">' +
+        '<div class="seg s-p" style="flex:' + pct(cp) + '"><span>' + m.p + ' г</span></div>' +
+        '<div class="seg s-f" style="flex:' + pct(cf) + '"><span>' + m.f + ' г</span></div>' +
+        '<div class="seg s-c" style="flex:' + pct(cc) + '"><span>' + m.c + ' г</span></div>' +
+      '</div>' +
+      '<div class="bar-cal">' + m.kcal + ' ккал</div>' +
+    '</div>';
+  }).join('');
+}
+
+renderRules();
+renderBars();
+
+var MATRIX_BASES = [
+  {
+    key: 'fish',
+    name: 'Заготовка из жирной рыбы (Омега-3)',
+    badge: 'Рыбная база',
+    intro: 'Блюда на базе запечённого лосося, форели, сардин и тунца. Одна запечённая партия рыбы на противне закрывает обеды и ужины на 3–4 дня.',
+    matcher: function (d) {
+      return (d.tags || []).indexOf('omega3') >= 0 || (d.ing || []).some(function (i) {
+        var n = (i.n || '').toLowerCase();
+        return n.indexOf('лосось') >= 0 || n.indexOf('сардин') >= 0 || n.indexOf('форель') >= 0 || n.indexOf('тунец') >= 0 || n.indexOf('треск') >= 0 || n.indexOf('кревет') >= 0;
+      });
+    }
+  },
+  {
+    key: 'poultry',
+    name: 'Птица и белковая заготовка',
+    badge: 'Птица & Мясо',
+    intro: 'Блюда на основе запечённого филе курицы, индейки или постной говядины. Готовятся на противне за один раз на 4–5 порций.',
+    matcher: function (d) {
+      return (d.ing || []).some(function (i) {
+        var n = (i.n || '').toLowerCase();
+        return n.indexOf('куриц') >= 0 || n.indexOf('курин') >= 0 || n.indexOf('индейк') >= 0 || n.indexOf('говяд') >= 0 || n.indexOf('фарш') >= 0;
+      });
+    }
+  },
+  {
+    key: 'starch',
+    name: 'База резистентных круп и гарниров (RS3 крахмал)',
+    badge: 'Холодные крупы',
+    intro: 'Отварной рис, гречка, картофель и киноа. Заготавливаются кастрюлей в воскресенье и увеличивают долю полезного RS3 крахмала.',
+    matcher: function (d) {
+      return (d.tags || []).indexOf('rs3') >= 0 || (d.ing || []).some(function (i) {
+        var n = (i.n || '').toLowerCase();
+        return n.indexOf('картоф') >= 0 || n.indexOf('рис') >= 0 || n.indexOf('гречк') >= 0 || n.indexOf('киноа') >= 0 || n.indexOf('булгур') >= 0 || n.indexOf('макарон') >= 0 || n.indexOf('нут') >= 0 || n.indexOf('чечевиц') >= 0;
+      });
+    }
+  },
+  {
+    key: 'dairy',
+    name: 'Творожные и казеиновые сборки',
+    badge: 'Творог & Скир',
+    intro: 'Сборки без плиты за 2 минуты: творог 5 %, скир, греческий йогурт и быстрые протеиновые приёмы перед сном.',
+    matcher: function (d) {
+      return d.meal === 'n' || (d.ing || []).some(function (i) {
+        var n = (i.n || '').toLowerCase();
+        return n.indexOf('творог') >= 0 || n.indexOf('скир') >= 0 || n.indexOf('йогурт') >= 0;
+      });
+    }
+  },
+  {
+    key: 'veggies',
+    name: 'Овощные базы, салаты и растительные ингредиенты',
+    badge: 'Овощи & Зелень',
+    intro: 'Заготовки из запечённых овощей, свежей зелени, орехов и семян для обеспечения 30+ видов растений за неделю.',
+    matcher: function (d) {
+      return true;
+    }
+  }
+];
+
+function getMatrixCategory(d) {
+  for (var i = 0; i < MATRIX_BASES.length; i++) {
+    if (MATRIX_BASES[i].matcher(d)) return MATRIX_BASES[i];
+  }
+  return MATRIX_BASES[MATRIX_BASES.length - 1];
+}
+
+var currentGroupMode = 'meal';
+
+function setGroupMode(mode) {
+  if (currentGroupMode === mode) return;
+  currentGroupMode = mode;
+  var bMeal = document.getElementById('btn-mode-meal');
+  var bMatrix = document.getElementById('btn-mode-matrix');
+  if (bMeal) bMeal.setAttribute('aria-pressed', mode === 'meal' ? 'true' : 'false');
+  if (bMatrix) bMatrix.setAttribute('aria-pressed', mode === 'matrix' ? 'true' : 'false');
+  renderAllGroups();
+  apply();
+}
+
+var USED_TAGS = Object.keys(TAGS).filter(function (t) {
+  return DISHES.some(function (d) { return (d.tags || []).indexOf(t) >= 0; });
+});
+var fMeal = '', fTag = '', fSearch = '';
+
+document.getElementById('f-meal').innerHTML =
+  '<button class="chip" data-meal="" aria-pressed="true">Все • 75</button>' +
+  MEALS.map(function (m) {
+    var count = dishesFor(m.key).length;
+    return '<button class="chip" data-meal="' + m.key + '" aria-pressed="false">' +
+      esc(m.name) + ' · ' + count + '</button>';
+  }).join('');
+
+document.getElementById('f-tag').innerHTML =
+  USED_TAGS.map(function (t) {
+    return '<button class="chip" data-tag="' + t + '" aria-pressed="false">' +
+      esc(TAGS[t] || t) + '</button>';
+  }).join('');
+
+document.getElementById('f-meal').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-meal]');
+  if (!b) return;
+  fMeal = b.dataset.meal;
+  press(this, b);
+  apply();
+});
+
+document.getElementById('f-tag').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-tag]');
+  if (!b) return;
+  var newTag = b.dataset.tag;
+  if (fTag === newTag) {
+    // тогл: повторный клик сбрасывает
+    fTag = '';
+    b.setAttribute('aria-pressed', 'false');
+  } else {
+    fTag = newTag;
+    // сбрасываем все остальные чипы
+    this.querySelectorAll('button').forEach(function (x) {
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+  }
+  apply();
+});
+
+var bMealBtn = document.getElementById('btn-mode-meal');
+var bMatrixBtn = document.getElementById('btn-mode-matrix');
+
+if (bMealBtn) bMealBtn.addEventListener('click', function () { setGroupMode('meal'); });
+if (bMatrixBtn) bMatrixBtn.addEventListener('click', function () { setGroupMode('matrix'); });
+
+function press(box, active) {
+  box.querySelectorAll('button').forEach(function (b) {
+    b.setAttribute('aria-pressed', b === active ? 'true' : 'false');
+  });
+}
+
+document.getElementById('f-search').addEventListener('input', function () {
+  fSearch = this.value;
+  apply();
+});
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === '/' && document.activeElement !== document.getElementById('f-search') &&
+      ['INPUT', 'TEXTAREA', 'SELECT'].indexOf((document.activeElement || {}).tagName) < 0) {
+    e.preventDefault();
+    document.getElementById('f-search').focus();
+  }
+  if (e.key === 'Escape') {
+    var drawerBackdrop = document.getElementById('drawer-backdrop');
+    if (drawerBackdrop && drawerBackdrop.classList.contains('active')) {
+      closeRecipeDrawer();
+    } else if (fMeal || fTag || fSearch || currentGroupMode !== 'meal') {
+      resetAllFilters();
+    }
+  }
+});
+
+function resetAllFilters() {
+  fMeal = ''; fTag = ''; fSearch = '';
+  currentGroupMode = 'meal';
+  var s = document.getElementById('f-search');
+  if (s) s.value = '';
+  var bMeal = document.getElementById('btn-mode-meal');
+  var bMatrix = document.getElementById('btn-mode-matrix');
+  if (bMeal) bMeal.setAttribute('aria-pressed', 'true');
+  if (bMatrix) bMatrix.setAttribute('aria-pressed', 'false');
+  // сброс meal chips
+  press(document.getElementById('f-meal'), document.querySelector('#f-meal button[data-meal=""]'));
+  // сброс tag chips (без кнопки "Все")
+  document.querySelectorAll('#f-tag button').forEach(function(b) {
+    b.setAttribute('aria-pressed', 'false');
+  });
+  renderAllGroups();
+  apply();
+}
+
+function match(d) {
+  if (fMeal && d.meal !== fMeal) return false;
+  if (fTag && (d.tags || []).indexOf(fTag) < 0) return false;
+  if (fSearch) {
+    var q = fSearch.trim().toLowerCase();
+    if (q) {
+      var nameMatch = (d.name || '').toLowerCase().indexOf(q) >= 0;
+      var shortMatch = (d.short || '').toLowerCase().indexOf(q) >= 0;
+      var noteMatch = (d.note || '').toLowerCase().indexOf(q) >= 0;
+      var ingMatch = (d.ing || []).some(function (i) { return (i.n || '').toLowerCase().indexOf(q) >= 0; });
+      var tagMatch = (d.tags || []).some(function (t) { return (TAGS[t] || t).toLowerCase().indexOf(q) >= 0; });
+      if (!nameMatch && !shortMatch && !noteMatch && !ingMatch && !tagMatch) return false;
+    }
+  }
+  return true;
+}
+
+function apply() {
+  var shown = 0;
+  DISHES.forEach(function (d) {
+    var el = document.getElementById(d.id);
+    if (!el) return;
+    var ok = match(d);
+    el.hidden = !ok;
+    if (ok) shown++;
+  });
+
+  if (currentGroupMode === 'meal') {
+    MEALS.forEach(function (m) {
+      var sec = document.getElementById('g-' + m.key);
+      if (!sec) return;
+      var any = dishesFor(m.key).some(match);
+      sec.hidden = !any;
+    });
+  } else {
+    MATRIX_BASES.forEach(function (b) {
+      var sec = document.getElementById('g-' + b.key);
+      if (!sec) return;
+      var any = DISHES.filter(function (d) { return getMatrixCategory(d).key === b.key; }).some(match);
+      sec.hidden = !any;
+    });
+  }
+
+  var countParts = [shown + '\u00a0/\u00a0' + DISHES.length + ' блюд'];
+  if (fSearch && fSearch.trim()) countParts.push('поиск: «' + esc(fSearch.trim()) + '»');
+  if (fTag) countParts.push(TAGS[fTag] || fTag);
+  if (currentGroupMode === 'matrix') countParts.push('по заготовкам');
+  document.getElementById('count').textContent = countParts.join(' · ');
+  var hasActiveFilter = Boolean(fMeal || fTag || fSearch.trim() || currentGroupMode !== 'meal');
+  var btnReset = document.getElementById('btn-reset');
+  if (btnReset) btnReset.hidden = !hasActiveFilter;
+  var emptyState = document.getElementById('empty-state');
+  if (emptyState) emptyState.hidden = shown > 0;
+
+  document.querySelectorAll('#jump a[data-id]').forEach(function (a) {
+    a.hidden = !match(BY_ID[a.dataset.id]);
+  });
+  document.querySelectorAll('#jump .jump-col').forEach(function (col) {
+    var groupKey = col.dataset.meal;
+    var list = currentGroupMode === 'meal' ? dishesFor(groupKey) : DISHES.filter(function (d) { return getMatrixCategory(d).key === groupKey; });
+    col.hidden = !list.some(match);
+  });
+}
+
+function renderAllGroups() {
+  if (currentGroupMode === 'meal') {
+    renderMealGroups();
+  } else {
+    renderMatrixGroups();
+  }
+}
+
+function renderMealGroups() {
+  document.getElementById('jump').innerHTML = MEALS.map(function (m) {
+    var list = dishesFor(m.key);
+    return '<details class="jump-col" data-meal="' + m.key + '">' +
+      '<summary class="jump-summary"><h2>' + esc(m.name) + ' · ' + list.length + '</h2><span class="jump-arrow">▾</span></summary>' +
+      '<div class="jump-links">' +
+        list.map(function (d) {
+          return '<a href="#' + d.id + '" data-id="' + d.id + '">' + esc(d.short) +
+            '<em>' + d.mac.p + ' Б · ' + d.mac.kcal + '</em></a>';
+        }).join('') +
+      '</div>' +
+    '</details>';
+  }).join('');
+
+  document.getElementById('groups').innerHTML = MEALS.map(function (m) {
+    var list = dishesFor(m.key);
+    return '<section class="group wrap" id="g-' + m.key + '">' +
+      '<div class="group-h"><h2>' + esc(m.name) + '</h2>' +
+        '<span class="badge ' + m.key + '">' + list.length + ' ' +
+          plural(list.length, 'блюдо') + '</span>' +
+        '<p>' + esc(intro[m.key]) + '</p></div>' +
+      '<div class="recipes-grid-3col">' +
+        list.map(function (d) { return recipeHTML(d, m); }).join('') +
+      '</div>' +
+    '</section>';
+  }).join('');
+}
+
+function renderMatrixGroups() {
+  var grouped = {};
+  MATRIX_BASES.forEach(function (b) { grouped[b.key] = []; });
+  DISHES.forEach(function (d) {
+    var cat = getMatrixCategory(d);
+    grouped[cat.key].push(d);
+  });
+
+  document.getElementById('jump').innerHTML = MATRIX_BASES.map(function (b) {
+    var list = grouped[b.key] || [];
+    return '<details class="jump-col" data-meal="' + b.key + '">' +
+      '<summary class="jump-summary"><h2>' + esc(b.badge) + ' · ' + list.length + '</h2><span class="jump-arrow">▾</span></summary>' +
+      '<div class="jump-links">' +
+        list.map(function (d) {
+          return '<a href="#' + d.id + '" data-id="' + d.id + '">' + esc(d.short) +
+            '<em>' + d.mac.p + ' Б · ' + d.mac.kcal + '</em></a>';
+        }).join('') +
+      '</div>' +
+    '</details>';
+  }).join('');
+
+  document.getElementById('groups').innerHTML = MATRIX_BASES.map(function (b) {
+    var list = grouped[b.key] || [];
+    return '<section class="group wrap" id="g-' + b.key + '">' +
+      '<div class="group-h"><h2>' + esc(b.name) + '</h2>' +
+        '<span class="badge matrix-badge">' + list.length + ' ' +
+          plural(list.length, 'заготовка') + '</span>' +
+        '<p>' + esc(b.intro) + '</p></div>' +
+      '<div class="recipes-grid-3col">' +
+        list.map(function (d) {
+          var mName = (MEALS.find(function (x) { return x.key === d.meal; }) || {}).name || '';
+          return recipeHTML(d, { key: d.meal, name: mName });
+        }).join('') +
+      '</div>' +
+    '</section>';
+  }).join('');
+}
+
+var intro = {
+  b: 'Тридцать–пятьдесят грамм белка и крупа с целой матрицей. Часть запекается партией на четыре дня, часть собирается утром за три минуты.',
+  l: 'Плотные блюда с гарниром — по четыре порции. Крахмал везде через холодную выдержку: варится заранее, ночует в холодильнике, набирает резистентный крахмал.',
+  d: 'Белок с овощами и минимумом углеводов: дневную норму крахмала уже закрыли завтрак и обед. Едим не позже чем за три часа до сна.',
+  n: 'Не рецепты, а сборка на две минуты: 30–40 г казеина за полчаса до сна. Готовить нечего — достать и смешать.'
+};
+
+function recipeHTML(d, m) {
+  var inPlan = isDishInPlan(d.id, d.meal);
+  var keep = d.keepText ? d.keepText :
+    'до ' + d.keep + ' ' + plural(d.keep, 'день');
+  var imgHTML = d.img ? '<div class="rec-card-img-wrap"><img src="' + esc(d.img) + '" alt="' + esc(d.name) + '" class="rec-card-img" loading="lazy" onerror="this.parentNode.style.display=\'none\'"></div>' : '';
+  var addBtnHTML = '<button class="card-add-btn' + (inPlan ? ' in-plan' : '') + '" data-add-id="' + d.id + '" title="' + (inPlan ? 'В плане' : 'Добавить в план') + '" aria-label="Добавить в план">' + (inPlan ? '✓' : '+') + '</button>';
+
+  return '<article class="rec-card-compact" id="' + d.id + '" data-id="' + d.id + '" tabindex="0" role="button" aria-label="' + esc(d.name) + '">' +
+    imgHTML +
+    '<div class="rec-card-head">' +
+      '<span class="badge ' + m.key + '">' + esc(m.name) + '</span>' +
+      '<span class="rec-card-meta">' + esc(d.time) + ' · ' + esc(keep) + '</span>' +
+    '</div>' +
+    '<h3>' + esc(d.name) + '</h3>' +
+    '<div class="rec-cal-wrap" style="text-align:left; display:block; width:100%; margin:6px 0 0 0; padding:0;">' +
+      '<span class="rec-cal" style="text-align:left; display:block; width:100%; margin:0; padding:0;"><b>1 порция:</b> ' + d.mac.p + ' Б / ' + d.mac.f + ' Ж / ' + d.mac.c + ' У · ' + d.mac.kcal + ' ккал</span>' +
+    '</div>' +
+    '<div class="rec-card-btn">' +
+      addBtnHTML +
+      '<span>Посмотреть рецепт →</span>' +
+    '</div>' +
+  '</article>';
+}
+
+// Делегирование кликов по элементам быстрых списков #jump
+document.getElementById('jump').addEventListener('click', function (e) {
+  var a = e.target.closest('a[data-id]');
+  if (!a) return;
+  e.preventDefault();
+  openRecipeDrawer(a.dataset.id);
+});
+
+// Делегирование кликов по карточкам рецептов
+document.getElementById('groups').addEventListener('click', function (e) {
+  var addBtn = e.target.closest('.card-add-btn');
+  if (addBtn) {
+    e.stopPropagation();
+    e.preventDefault();
+    var dishId = addBtn.dataset.addId;
+    addDishToCurrentPlan(dishId);
+    return;
+  }
+  var card = e.target.closest('.rec-card-compact');
+  if (card && card.dataset.id) {
+    openRecipeDrawer(card.dataset.id);
+  }
+});
+
+// Делегирование нажатий клавиш клавиатуры (Enter / Space) по карточкам рецептов
+document.getElementById('groups').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    var card = e.target.closest('.rec-card-compact');
+    var isAddBtn = e.target.closest('.card-add-btn');
+    if (isAddBtn) return; // позволить системный клик по кнопке
+    if (card && card.dataset.id) {
+      e.preventDefault();
+      openRecipeDrawer(card.dataset.id);
+    }
+  }
+});
+
+function showToast(msg, undoFn) {
+  var old = document.getElementById('mp-toast');
+  if (old && old.parentNode) old.parentNode.removeChild(old);
+
+  var toast = document.createElement('div');
+  toast.id = 'mp-toast';
+  toast.className = 'mp-toast';
+  toast.innerHTML = '<span>' + msg + '</span>' +
+    (undoFn ? '<button class="mp-toast-undo">Отменить</button>' : '');
+
+  document.body.appendChild(toast);
+  setTimeout(function(){ toast.classList.add('show'); }, 10);
+
+  if (undoFn) {
+    var undoBtn = toast.querySelector('.mp-toast-undo');
+    if (undoBtn) undoBtn.addEventListener('click', function(){
+      undoFn();
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    });
+  }
+
+  setTimeout(function(){
+    toast.classList.remove('show');
+    setTimeout(function(){ if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+  }, 4000);
+}
+
+function updateAllCardAddButtons() {
+  var buttons = document.querySelectorAll('.card-add-btn');
+  buttons.forEach(function (btn) {
+    var dishId = btn.dataset.addId;
+    if (!dishId || !BY_ID[dishId]) return;
+    var d = BY_ID[dishId];
+    var inPlan = isDishInPlan(d.id, d.meal);
+    if (inPlan) {
+      btn.textContent = '✓';
+      btn.classList.add('in-plan');
+      btn.title = 'В плане';
+    } else {
+      btn.textContent = '+';
+      btn.classList.remove('in-plan');
+      btn.title = 'Добавить в план';
+    }
+  });
+  updatePlanSidebar();
+}
+
+function getDishIdFromMeal(plan, mealKey) {
+  if (!plan || !plan[mealKey]) return '';
+  var list = plan[mealKey];
+  if (Array.isArray(list)) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && typeof list[i] === 'string') return list[i];
+    }
+  } else if (typeof list === 'object') {
+    for (var k in list) {
+      if (list[k] && typeof list[k] === 'string') return list[k];
+    }
+  }
+  return '';
+}
+
+function togglePlanSidebar() {
+  var sidebar = document.getElementById('plan-sidebar');
+  if (!sidebar) return;
+  sidebar.classList.toggle('collapsed');
+  var btn = document.getElementById('plan-sidebar-toggle-btn');
+  if (btn) {
+    btn.textContent = sidebar.classList.contains('collapsed') ? '▲' : '—';
+  }
+}
+
+function updatePlanSidebar() {
+  var sidebar = document.getElementById('plan-sidebar');
+  if (!sidebar) return;
+
+  var raw = localStorage.getItem('mp-plan');
+  var plan = null;
+  try { plan = raw ? JSON.parse(raw) : null; } catch(e) {}
+  if (!plan) plan = { b: [], l: [], d: [], n: [] };
+
+  var filledCount = 0;
+  var totalKcal = 0;
+  var totalP = 0;
+
+  var slotsHTML = MEALS.map(function(m) {
+    var dishId = getDishIdFromMeal(plan, m.key);
+    var dish = BY_ID[dishId];
+    if (dish && dish.mac) {
+      filledCount++;
+      totalKcal += (dish.mac.kcal || 0);
+      totalP += (dish.mac.p || 0);
+
+      return '<div class="plan-sidebar-slot filled">' +
+        '<div class="plan-sidebar-slot-label">' +
+          '<span>' + esc(m.name) + '</span>' +
+          '<button class="plan-sidebar-remove-btn" onclick="removeDishFromSidebar(\'' + dish.id + '\')" title="Удалить из плана">✕</button>' +
+        '</div>' +
+        '<div class="plan-sidebar-slot-name" title="' + esc(dish.name) + '">' + esc(dish.short || dish.name) + '</div>' +
+        '<div class="plan-sidebar-slot-meta">' + (dish.mac.p || 0) + ' Б · ' + (dish.mac.kcal || 0) + ' ккал</div>' +
+      '</div>';
+    } else {
+      return '<div class="plan-sidebar-slot">' +
+        '<div class="plan-sidebar-slot-label"><span>' + esc(m.name) + '</span></div>' +
+        '<button class="plan-sidebar-empty-btn" onclick="scrollToMealCategory(\'' + m.key + '\')">+ Выбрать ' + esc(m.name.toLowerCase()) + '</button>' +
+      '</div>';
+    }
+  }).join('');
+
+  var countEl = document.getElementById('plan-sidebar-count');
+  if (countEl) {
+    if (filledCount === 4) {
+      countEl.textContent = '✓ 4 / 4';
+      countEl.classList.add('complete');
+    } else {
+      countEl.textContent = filledCount + ' / 4';
+      countEl.classList.remove('complete');
+    }
+  }
+
+  var slotsEl = document.getElementById('plan-sidebar-slots');
+  if (slotsEl) slotsEl.innerHTML = slotsHTML;
+
+  var sumEl = document.getElementById('plan-sidebar-summary');
+  if (sumEl) {
+    sumEl.innerHTML = filledCount > 0 ?
+      '<span>Примерно / день:</span> <b>' + totalP + ' Б · ~' + totalKcal + ' ккал</b>' :
+      '<span>Выберите 4 блюда</span>';
+  }
+}
+
+function removeDishFromSidebar(id) {
+  addDishToCurrentPlan(id);
+}
+
+function resetCurrentPlan() {
+  showCustomConfirm({
+    title: 'Сбросить план',
+    subtitle: 'Вы уверены, что хотите сбросить все выбранные блюда из собираемого плана?',
+    confirmText: 'Сбросить',
+    isDanger: true,
+    onConfirm: function() {
+      var plan = { b: [], l: [], d: [], n: [] };
+      save('mp-plan', plan);
+      localStorage.setItem('mp-plan', JSON.stringify(plan));
+      updateAllCardAddButtons();
+      showCustomToast('План сброшен');
+    }
+  });
+}
+
+function randomizeCurrentPlan() {
+  var plan = { b: [], l: [], d: [], n: [] };
+  var planDaysCount = parseInt(localStorage.getItem('mp-plan-days') || '5', 10);
+  MEALS.forEach(function(m) {
+    var mealDishes = DISHES.filter(function(d) { return d.meal === m.key; });
+    if (mealDishes.length > 0) {
+      var randomDish = mealDishes[Math.floor(Math.random() * mealDishes.length)];
+      for (var i = 0; i < planDaysCount; i++) {
+        plan[m.key].push(randomDish.id);
+      }
+    }
+  });
+  save('mp-plan', plan);
+  localStorage.setItem('mp-plan', JSON.stringify(plan));
+  updateAllCardAddButtons();
+  showToast('Сгенерирован случайный рацион!');
+}
+
+function scrollToMealCategory(mealKey) {
+  var el = document.getElementById('g-' + mealKey);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function isDishInPlan(id, mealKey) {
+  var raw = localStorage.getItem('mp-plan');
+  if (!raw) return false;
+  try {
+    var p = JSON.parse(raw);
+    var planDaysCount = parseInt(localStorage.getItem('mp-plan-days') || '5', 10);
+    var list = p[mealKey];
+    if (!list) return false;
+    if (Array.isArray(list)) {
+      var slots = list.slice(0, planDaysCount);
+      return slots.indexOf(id) >= 0;
+    } else if (typeof list === 'object') {
+      for (var k in list) {
+        if (parseInt(k, 10) < planDaysCount && list[k] === id) return true;
+      }
+    }
+    return false;
+  } catch(e) { return false; }
+}
+
+function addDishToCurrentPlan(id) {
+  var d = BY_ID[id];
+  if (!d) return;
+  var mealKey = d.meal;
+  var planDaysCount = parseInt(localStorage.getItem('mp-plan-days') || '5', 10);
+  var rawPlan = localStorage.getItem('mp-plan');
+  var plan = null;
+  try { plan = rawPlan ? JSON.parse(rawPlan) : null; } catch(e) {}
+  if (!plan || typeof plan !== 'object') {
+    plan = { b: [], l: [], d: [], n: [] };
+  }
+  MEALS.forEach(function(m) {
+    if (!plan[m.key] || !Array.isArray(plan[m.key])) plan[m.key] = [];
+    while (plan[m.key].length < 7) plan[m.key].push('');
+  });
+
+  var primaryDishId = getDishIdFromMeal(plan, mealKey);
+  var isPrimary = (primaryDishId === d.id);
+  var previousSlots = (plan[mealKey] || []).slice();
+
+  // Очищаем слоты данной категории
+  plan[mealKey] = ['', '', '', '', '', '', ''];
+
+  if (!isPrimary) {
+    // Выбор нового блюда — заполняем слоты до конца выбранных дней плана
+    for (var i = 0; i < planDaysCount; i++) {
+      plan[mealKey][i] = d.id;
+    }
+    save('mp-plan', plan);
+    localStorage.setItem('mp-plan', JSON.stringify(plan));
+    updateAllCardAddButtons();
+    save('mp-plan', plan);
+    updateAllCardAddButtons();
+
+    showToast('✓ «' + esc(d.name) + '» добавлено в план на ' + planDaysCount + ' дней', function() {
+      plan[mealKey] = previousSlots;
+      save('mp-plan', plan);
+      updateAllCardAddButtons();
+      var cardEl = document.getElementById(d.id);
+      if (cardEl) {
+        setTimeout(function() {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          try { cardEl.focus({ preventScroll: true }); } catch(e){}
+        }, 50);
+      }
+    });
+
+    // Автоматическая плавная прокрутка к следующему разделу (Завтрак -> Обед -> Ужин -> Перекус)
+    var NEXT_MEAL_MAP = { b: 'l', l: 'd', d: 'n' };
+    var nextMeal = NEXT_MEAL_MAP[mealKey];
+    if (nextMeal) {
+      var nextSection = document.getElementById('g-' + nextMeal);
+      if (nextSection) {
+        setTimeout(function() {
+          nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 250);
+      }
+    } else if (mealKey === 'n') {
+      // После выбора приёма "Перед сном" автоматически переносим в Конструктор (plan.html)
+      setTimeout(function() {
+        window.location.href = 'plan.html';
+      }, 350);
+    }
+  } else {
+    save('mp-plan', plan);
+    updateAllCardAddButtons();
+    showToast('Удалено из плана', function() {
+      plan[mealKey] = previousSlots;
+      save('mp-plan', plan);
+      updateAllCardAddButtons();
+      var cardEl = document.getElementById(d.id);
+      if (cardEl) {
+        setTimeout(function() {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          try { cardEl.focus({ preventScroll: true }); } catch(e){}
+        }, 50);
+      }
+    });
+  }
+
+  localStorage.setItem('mp-plan', JSON.stringify(plan));
+
+  // Автоматически обновляем галочки у ВСЕХ карточек
+  updateAllCardAddButtons();
+
+  var drawerBtn = document.getElementById('drawer-add-plan-btn');
+  if (drawerBtn) {
+    var inPlanNow = isDishInPlan(d.id, mealKey);
+    drawerBtn.textContent = inPlanNow ? '✓ В вашем плане' : '+ Добавить в план';
+    drawerBtn.className = 'btn ' + (inPlanNow ? 'btn-in-plan' : 'btn-solid');
+  }
+}
+
+function openRecipeDrawer(id) {
+  window.currentDrawerId = id;
+  var d = BY_ID[id];
+  if (!d) return;
+  var mName = (MEALS.find(function (x) { return x.key === d.meal; }) || {}).name || '';
+  var keep = d.keepText ? d.keepText : 'до ' + d.keep + ' ' + plural(d.keep, 'день');
+
+  var inPlan = isDishInPlan(d.id, d.meal);
+
+  document.getElementById('drawer-head-content').innerHTML =
+    '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap">' +
+      '<div>' +
+        '<span class="badge ' + d.meal + '">' + esc(mName) + '</span>' +
+        '<h2 style="margin-top:6px">' + esc(d.name) + '</h2>' +
+        '<p class="rec-card-meta" style="margin-top:6px">Время приготовления: ' + esc(d.time) + ' · Хранение: ' + esc(keep) + '</p>' +
+      '</div>' +
+      '<button class="btn ' + (inPlan ? 'btn-in-plan' : 'btn-solid') + '" id="drawer-add-plan-btn" onclick="addDishToCurrentPlan(\'' + d.id + '\')">' +
+        (inPlan ? '✓ В вашем плане' : '+ Добавить в план') +
+      '</button>' +
+    '</div>';
+
+  var drawerImgHTML = d.img ? '<div class="drawer-img-box"><img src="' + esc(d.img) + '" alt="' + esc(d.name) + '" class="drawer-img" onerror="this.parentNode.style.display=\'none\'"></div>' : '';
+
+  var defaultPortions = 4;
+  var optionsHTML = '';
+  for (var p = 1; p <= 10; p++) {
+    optionsHTML += '<option value="' + p + '"' + (p === defaultPortions ? ' selected' : '') + '>' + p + '</option>';
+  }
+
+  document.getElementById('drawer-body-content').innerHTML =
+    drawerImgHTML +
+    '<div class="rec-cal-wrap" style="background:var(--frost); padding:16px; border-radius:4px; text-align:left; font-size:13px">' +
+      '<div><b>1 порция:</b> ' + d.mac.p + ' Б / ' + d.mac.f + ' Ж / ' + d.mac.c + ' У · ' + (d.fib||0) + ' клетчатки · ' + d.mac.kcal + ' ккал</div>' +
+    '</div>' +
+    '<div class="rec-ing">' +
+      '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:14px">' +
+        '<p class="rec-sub" style="margin:0">Ингредиенты · на <span id="drawer-portion-label">' + defaultPortions + ' ' + plural(defaultPortions, 'порцию') + '</span></p>' +
+        '<div style="display:flex; align-items:center; gap:6px">' +
+          '<label for="drawer-portion-select" style="font-family:var(--mono); font-size:11px; color:var(--slate)">Порций:</label>' +
+          '<select id="drawer-portion-select" style="font-family:var(--body); font-size:13px; font-weight:600; padding:3px 8px; border:1px solid var(--line); border-radius:4px; background:#fff; color:var(--brine); cursor:pointer" onchange="renderDrawerIngredients(\'' + d.id + '\', parseInt(this.value, 10))">' +
+            optionsHTML +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+      '<ul class="ing" id="drawer-ing-list"></ul>' +
+      ((d.tags || []).length ? '<div class="tags" style="margin-top:14px">' + d.tags.map(function (t) {
+        return '<span class="tag">' + esc(TAGS[t] || t) + '</span>';
+      }).join('') + '</div>' : '') +
+    '</div>' +
+    '<div class="rec-steps">' +
+      '<p class="rec-sub">Инструкция приготовления · ' + esc(d.time) + '</p>' +
+      '<ol>' + d.steps.map(function (s) { return '<li>' + s + '</li>'; }).join('') + '</ol>' +
+      (d.note ? '<div class="note">' + d.note + '</div>' : '') +
+    '</div>';
+
+  renderDrawerIngredients(d.id, defaultPortions);
+
+  document.getElementById('drawer-backdrop').classList.add('active');
+}
+
+function renderDrawerIngredients(dishId, targetPortions) {
+  var d = BY_ID[dishId];
+  if (!d) return;
+  var basePortions = d.portions || 4;
+  var scale = targetPortions / basePortions;
+
+  var html = d.ing.map(function (i) {
+    var valStr = '';
+    if (i.q !== null && i.q !== undefined) {
+      var scaledQ = Math.round(i.q * scale * 10) / 10;
+      valStr = fmtQty(scaledQ, i.u);
+    } else {
+      valStr = i.d ? esc(i.d) : 'по вкусу';
+    }
+    return '<li>' + esc(i.n) + '<em>' + valStr + '</em></li>';
+  }).join('');
+
+  var ingList = document.getElementById('drawer-ing-list');
+  if (ingList) ingList.innerHTML = html;
+
+  var portionLabel = document.getElementById('drawer-portion-label');
+  if (portionLabel) portionLabel.textContent = targetPortions + ' ' + plural(targetPortions, 'порцию');
+}
+
+function closeRecipeDrawer() {
+  var drawerBackdrop = document.getElementById('drawer-backdrop');
+  if (drawerBackdrop) drawerBackdrop.classList.remove('active');
+}
+
+var closeBtn = document.getElementById('drawer-close-btn');
+if (closeBtn) closeBtn.addEventListener('click', closeRecipeDrawer);
+
+document.addEventListener('pointerdown', function (e) {
+  var drawerBackdrop = document.getElementById('drawer-backdrop');
+  if (!drawerBackdrop || !drawerBackdrop.classList.contains('active')) return;
+  var drawer = document.getElementById('drawer');
+  if (drawer && !drawer.contains(e.target) && !e.target.closest('.rec-card-compact') && !e.target.closest('a[data-id]')) {
+    closeRecipeDrawer();
+  }
+});
+
+renderAllGroups();
+apply();
+updateAllCardAddButtons();
+updatePlanSidebar();
+</script>
+<!-- impeccable-live-start -->
+<script src="http://localhost:8401/live.js?token=4fa6ded7-7332-4de5-94ee-8a15176c392f"></script>
+<!-- impeccable-live-end -->
+</body>
+</html>

@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Профиль — управление планами питания и норма ккал</title>
+<meta name="description" content="Личный кабинет: сохраняйте ваши готовые рационы, переключайтесь между планами, создавайте новые меню и настраивайте персональную норму калорий.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+.profile-hero{padding:48px 0 32px}
+.profile-grid{display:grid; grid-template-columns:1fr; gap:32px; margin-bottom:48px}
+@media (min-width: 900px) {
+  .profile-grid{grid-template-columns: 1fr 380px;}
+}
+
+.sec-card{background:var(--card-bg, #FFFFFF); border:1px solid var(--line, #DDE4E4); border-radius:12px; padding:28px}
+.sec-card-h{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--line, #DDE4E4)}
+.sec-card-h h2{font-family:var(--disp); font-size:20px; letter-spacing:-.02em}
+
+.plan-actions-bar{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px}
+
+.saved-plans-grid{display:grid; grid-template-columns:1fr; gap:16px}
+@media (min-width: 600px) {
+  .saved-plans-grid{grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));}
+}
+
+.plan-item-card{border:1px solid var(--line, #DDE4E4); border-radius:14px; background:#FFFFFF; padding:24px; display:flex; flex-direction:column; gap:16px; transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease; box-shadow:0 4px 16px rgba(0,0,0,0.03)}
+.plan-item-card:hover{border-color:var(--brine, #146C7E); transform:translateY(-2px); box-shadow:0 10px 28px rgba(0,0,0,0.07)}
+.plan-item-card.is-active{border:2px solid var(--brine, #146C7E); background:#F8FAFC; box-shadow:0 8px 24px rgba(0,0,0,0.06)}
+
+.plan-card-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px}
+.plan-card-title{font-family:var(--disp); font-size:18px; font-weight:700; color:var(--steel, #16242B); line-height:1.25}
+.plan-card-date{font-family:var(--mono); font-size:11px; color:var(--slate, #586E78); margin-top:4px; letter-spacing:.02em}
+
+.plan-card-head-actions{display:flex; align-items:center; gap:8px}
+.plan-download-btn{background:var(--frost, #F4F7F6); border:1px solid var(--line, #DDE4E4); border-radius:8px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; color:var(--brine, #146C7E); cursor:pointer; transition:all .15s ease}
+.plan-download-btn:hover{background:var(--brine, #146C7E); color:#FFFFFF; border-color:var(--brine, #146C7E); transform:translateY(-1px)}
+
+.active-pill{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; background:var(--brine, #146C7E); color:#FFFFFF; padding:5px 10px; border-radius:20px; font-weight:700; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.active-dot-pulse{width:6px; height:6px; background:#34D399; border-radius:50%; box-shadow:0 0 0 2px rgba(52,211,153,0.3); animation:pulseDot 1.8s infinite}
+@keyframes pulseDot{0%{transform:scale(0.95); box-shadow:0 0 0 0 rgba(52,211,153,0.7)} 70%{transform:scale(1.05); box-shadow:0 0 0 5px rgba(52,211,153,0)} 100%{transform:scale(0.95); box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+
+.plan-card-metrics-box{background:#F4F7F6; border:1px solid var(--line, #DDE4E4); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:8px}
+.plan-card-cal-row{display:flex; justify-content:space-between; align-items:baseline}
+.plan-card-cal-row span{font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--slate, #586E78); letter-spacing:.06em}
+.plan-card-cal-row b{font-family:var(--disp); font-size:20px; color:var(--steel, #16242B); font-weight:700}
+
+.plan-card-macros-chips{display:flex; gap:8px; border-top:1px solid rgba(0,0,0,0.06); padding-top:8px}
+.macro-mini-chip{flex:1; background:#FFFFFF; border:1px solid var(--line, #DDE4E4); border-radius:6px; padding:6px 8px; text-align:center; font-size:12px; color:var(--steel, #16242B)}
+.macro-mini-chip b{font-family:var(--disp); font-weight:700}
+.macro-mini-chip.p b{color:var(--brine, #146C7E)}
+.macro-mini-chip.f b{color:#D97706}
+.macro-mini-chip.c b{color:#059669}
+
+.plan-card-preview{background:#FFFFFF; border:1px solid var(--line, #DDE4E4); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:8px}
+.preview-meal-row{display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:13px}
+.meal-tag-wrap{display:inline-flex; align-items:center; gap:6px; flex-shrink:0}
+.meal-color-dot{width:7px; height:7px; border-radius:50%; display:inline-block}
+.meal-color-dot.b{background:#F59E0B}
+.meal-color-dot.l{background:#0EA5E9}
+.meal-color-dot.d{background:#10B981}
+.meal-color-dot.n{background:#8B5CF6}
+
+.meal-cat-name{font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--slate, #586E78); font-weight:600}
+.meal-dish-name{color:var(--steel, #16242B); font-weight:500; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+.plan-card-btns{display:flex; gap:10px; margin-top:4px}
+.plan-card-btns button{flex:1; padding:10px 14px; font-size:14px}
+.btn.active-plan-btn{background:#E0F2FE; color:#0369A1; border-color:#BAE6FD; font-weight:600; cursor:default}
+.btn.btn-outline-danger{border:1px solid var(--line, #DDE4E4); background:#FFFFFF; color:#DC2626}
+.btn.btn-outline-danger:hover{background:#FEF2F2; border-color:#FCA5A5}
+
+.empty-plans-card{text-align:center; padding:40px 20px; background:#FFFFFF; border:1px dashed var(--line, #DDE4E4); border-radius:10px; color:var(--slate, #586E78)}
+.empty-plans-card p{margin:12px 0 20px; font-size:15px}
+
+.profile-form{display:flex; flex-direction:column; gap:16px}
+.profile-form label{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--slate, #586E78); margin-bottom:6px; display:block}
+.profile-form input, .profile-form select{width:100%; padding:10px 14px; border:1px solid var(--line, #DDE4E4); border-radius:6px; font-family:inherit; font-size:15px; background:#FFFFFF; color:var(--steel, #16242B)}
+.gender-selector{display:flex; gap:8px}
+.gender-selector button{flex:1; padding:10px; border:1px solid var(--line, #DDE4E4); border-radius:6px; background:#FFFFFF; cursor:pointer; font-family:inherit; font-size:14px; transition:.15s}
+.gender-selector button[aria-pressed="true"]{background:var(--brine, #146C7E); color:#FFFFFF; border-color:var(--brine, #146C7E); font-weight:600}
+
+.calc-summary-box{background:#F0F9FF; border:1px solid #BAE6FD; border-radius:8px; padding:16px; margin-top:12px; display:flex; flex-direction:column; gap:10px}
+.calc-summary-box div{display:flex; justify-content:space-between; font-size:13px; color:var(--slate, #586E78)}
+.calc-summary-box div b{color:var(--steel, #16242B); font-weight:700}
+.calc-summary-box div.highlight-row{font-size:15px; border-top:1px dashed #BAE6FD; padding-top:8px; margin-top:4px}
+.calc-summary-box div.highlight-row b{color:var(--brine, #146C7E)}
+
+/* ---- кастомные всплывающие диалоги в стиле сайта ---- */
+.custom-dialog-backdrop{position:fixed; inset:0; background:rgba(22, 36, 43, 0.45); backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); z-index:9999; display:none; align-items:center; justify-content:center; padding:20px; animation:dialogFadeIn .18s ease-out}
+.custom-dialog-backdrop.active{display:flex}
+@keyframes dialogFadeIn { from{opacity:0; transform:scale(.97)} to{opacity:1; transform:scale(1)} }
+
+.custom-dialog-box{background:#FFFFFF; border:1px solid var(--line, #DDE4E4); border-radius:12px; padding:28px; width:100%; max-width:440px; box-shadow:0 16px 40px rgba(0,0,0,0.16); display:flex; flex-direction:column; gap:18px}
+.custom-dialog-h{display:flex; justify-content:space-between; align-items:center}
+.custom-dialog-h h3{font-family:var(--disp); font-size:18px; letter-spacing:-.01em; margin:0; color:var(--steel, #16242B)}
+.custom-dialog-close{background:none; border:none; font-size:18px; cursor:pointer; color:var(--slate, #586E78); padding:4px}
+.custom-dialog-close:hover{color:var(--steel, #16242B)}
+.custom-dialog-sub{margin:0; font-size:14.5px; color:var(--slate, #586E78); line-height:1.45}
+.custom-dialog-input{padding:12px 14px; border:2px solid var(--brine, #146C7E); border-radius:6px; font-family:inherit; font-size:15px; width:100%; outline:none; background:#F4F7F6; color:var(--steel, #16242B)}
+.custom-dialog-btns{display:flex; gap:10px; justify-content:flex-end; margin-top:4px}
+.custom-dialog-btns button{min-width:100px}
+.btn.danger{background:#DC2626; color:#FFFFFF; border-color:#DC2626}
+.btn.danger:hover{background:#B91C1C; border-color:#B91C1C}
+
+/* ---- всплывающие уведомления (тоасты) ---- */
+.custom-toast{position:fixed; bottom:28px; right:28px; background:#16242B; color:#FFFFFF; padding:14px 22px; border-radius:8px; font-size:14px; font-weight:500; border-left:4px solid var(--brine, #146C7E); box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:10000; opacity:0; transform:translateY(12px); transition:.25s ease; pointer-events:none}
+.custom-toast.active{opacity:1; transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a href="index.html" class="mark">Заготовка <span>· свой план</span></a>
+    <nav class="nav" aria-label="Основная навигация">
+      <a href="profile.html" aria-current="page">Профиль</a>
+      <a href="index.html">Рецепты</a>
+      <a href="plan.html">Конструктор</a>
+      <a href="calendar.html">Календарь</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero profile-hero">
+    <h1>Личный кабинет<br>и <em>сохранённые рационы</em></h1>
+    <p class="lede">Сохраняйте готовые варианты меню, переключайтесь между планами в один клик или настройте персональную норму калорий.</p>
+  </section>
+
+  <div class="profile-grid">
+    <!-- Левая колонка: Управление планами -->
+    <div class="sec-card">
+      <div class="sec-card-h">
+        <h2>Мои сохранённые планы</h2>
+        <span class="summary-tag"><span class="summary-tag-text" id="plans-count-badge">0 планов</span></span>
+      </div>
+
+      <div class="plan-actions-bar">
+        <button class="btn btn-solid" onclick="handleSaveCurrentPlan()">Сохранить текущий план</button>
+        <button class="btn" onclick="handleCreateNewPlan()">Собрать новый план</button>
+      </div>
+
+      <div class="saved-plans-grid" id="saved-plans-container">
+        <!-- Карточки планов рендерятся динамически -->
+      </div>
+    </div>
+
+    <!-- Правая колонка: Настройки тела и нормы калорий -->
+    <div class="sec-card">
+      <div class="sec-card-h">
+        <h2>Расчёт калорий и БЖУ</h2>
+      </div>
+
+      <div class="profile-form">
+        <div>
+          <label>Пол</label>
+          <div class="gender-selector">
+            <button type="button" id="pg-m" onclick="setFormGender('m')">Мужчина</button>
+            <button type="button" id="pg-f" onclick="setFormGender('f')">Женщина</button>
+          </div>
+        </div>
+
+        <div>
+          <label for="p-age">Возраст (лет)</label>
+          <input type="number" id="p-age" min="14" max="100" oninput="updateLiveFormCalc()">
+        </div>
+
+        <div>
+          <label for="p-height">Рост (см)</label>
+          <input type="number" id="p-height" min="120" max="230" oninput="updateLiveFormCalc()">
+        </div>
+
+        <div>
+          <label for="p-weight">Вес (кг)</label>
+          <input type="number" id="p-weight" min="35" max="250" oninput="updateLiveFormCalc()">
+        </div>
+
+        <div>
+          <label for="p-activity">Физическая активность</label>
+          <select id="p-activity" onchange="updateLiveFormCalc()">
+            <option value="1.2">1.2 — Сидячий образ жизни</option>
+            <option value="1.375">1.375 — Легкая (1–3 трен./нед.)</option>
+            <option value="1.55">1.55 — Умеренная (3–5 трен./нед.)</option>
+            <option value="1.725">1.725 — Высокая (6–7 трен./нед.)</option>
+            <option value="1.9">1.9 — Экстремальная активность</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="p-goal">Цель питания</label>
+          <select id="p-goal" onchange="updateLiveFormCalc()">
+            <option value="loss">Снижение веса (дефицит -15%)</option>
+            <option value="maintain">Поддержание формы (0%)</option>
+            <option value="gain">Набор массы (профицит +15%)</option>
+          </select>
+        </div>
+
+        <div class="calc-summary-box">
+          <div><span>Базовый метаболизм (BMR):</span> <b id="f-bmr">—</b></div>
+          <div><span>Поддержание веса (TDEE):</span> <b id="f-tdee">—</b></div>
+          <div class="highlight-row"><span>Целевая норма:</span> <b id="f-target">—</b></div>
+          <div class="highlight-row"><span>Целевой белок:</span> <b id="f-protein">—</b></div>
+        </div>
+
+        <button class="btn btn-solid" style="width:100%; margin-top:8px" onclick="saveProfileFromPage()">Сохранить профиль</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="foot wrap">
+  <span>Заготовка · Ваш персональный рацион питания</span>
+  <span><a href="index.html">Перейти к рецептам →</a></span>
+</footer>
+
+<script src="data.js"></script>
+<script src="dishes-b.js"></script>
+<script src="dishes-l.js"></script>
+<script src="dishes-d.js"></script>
+<script src="dishes-n.js"></script>
+<script src="app.js"></script>
+<script src="profile.js"></script>
+<script>
+var formGender = 'm';
+
+function initProfilePage() {
+  loadProfileFormData();
+  renderSavedPlansList();
+}
+
+function setFormGender(g) {
+  formGender = g;
+  var btnM = document.getElementById('pg-m');
+  var btnF = document.getElementById('pg-f');
+  if (btnM) btnM.setAttribute('aria-pressed', g === 'm' ? 'true' : 'false');
+  if (btnF) btnF.setAttribute('aria-pressed', g === 'f' ? 'true' : 'false');
+  updateLiveFormCalc();
+}
+
+function loadProfileFormData() {
+  var data = loadUserProfileData();
+  formGender = data.gender || 'm';
+  setFormGender(formGender);
+
+  document.getElementById('p-age').value = data.age || 30;
+  document.getElementById('p-height').value = data.height || 178;
+  document.getElementById('p-weight').value = data.weight || 75;
+  document.getElementById('p-activity').value = data.activity || 1.55;
+  document.getElementById('p-goal').value = data.goal || 'loss';
+
+  updateLiveFormCalc();
+}
+
+function getPageFormData() {
+  return {
+    gender: formGender,
+    age: parseInt(document.getElementById('p-age').value, 10) || 30,
+    height: parseFloat(document.getElementById('p-height').value) || 178,
+    weight: parseFloat(document.getElementById('p-weight').value) || 75,
+    activity: parseFloat(document.getElementById('p-activity').value) || 1.55,
+    goal: document.getElementById('p-goal').value || 'loss'
+  };
+}
+
+function updateLiveFormCalc() {
+  var data = getPageFormData();
+  var calc = calculateUserProfile(data);
+
+  document.getElementById('f-bmr').textContent = calc.bmr + ' ккал';
+  document.getElementById('f-tdee').textContent = calc.tdee + ' ккал';
+  document.getElementById('f-target').textContent = calc.kcal.min + '–' + calc.kcal.max + ' ккал';
+  document.getElementById('f-protein').textContent = calc.p.target + ' г белка';
+}
+
+function saveProfileFromPage() {
+  var data = getPageFormData();
+  localStorage.setItem('mp-user-profile', JSON.stringify(data));
+  applyUserProfileToApp();
+  showCustomToast('Профиль и калории успешно сохранены!');
+}
+
+/* Рендеринг списка сохраненных планов */
+function renderSavedPlansList() {
+  var container = document.getElementById('saved-plans-container');
+  var badge = document.getElementById('plans-count-badge');
+  if (!container) return;
+
+  var plans = getSavedPlans();
+  var activeId = getActivePlanId();
+
+  if (badge) badge.textContent = plans.length + ' ' + (plans.length === 1 ? 'план' : (plans.length > 1 && plans.length < 5 ? 'плана' : 'планов'));
+
+  if (!plans.length) {
+    container.innerHTML =
+      '<div class="empty-plans-card" style="grid-column:1/-1">' +
+        '<h3>Сохранённых планов пока нет</h3>' +
+        '<p>Вы можете собрать уникальный рацион в Конструкторе и сохранить его здесь под удобным именем.</p>' +
+        '<a href="index.html" class="btn btn-solid">Собрать план в конструкторе →</a>' +
+      '</div>';
+    return;
+  }
+
+  container.innerHTML = plans.map(function(p) {
+    var daysCount = p.days || 5;
+
+    var dailyKcal = p.totals && p.totals.kcal ? Math.round(p.totals.kcal / daysCount) : 0;
+    var dailyP = p.totals && p.totals.p ? Math.round(p.totals.p / daysCount) : 0;
+    var dailyF = p.totals && p.totals.f ? Math.round(p.totals.f / daysCount) : 0;
+    var dailyC = p.totals && p.totals.c ? Math.round(p.totals.c / daysCount) : 0;
+
+    // Получаем блюда для предпросмотра
+    var bDish = BY_ID[p.plan && p.plan.b ? (Array.isArray(p.plan.b) ? p.plan.b[0] : p.plan.b) : ''];
+    var lDish = BY_ID[p.plan && p.plan.l ? (Array.isArray(p.plan.l) ? p.plan.l[0] : p.plan.l) : ''];
+    var dDish = BY_ID[p.plan && p.plan.d ? (Array.isArray(p.plan.d) ? p.plan.d[0] : p.plan.d) : ''];
+    var nDish = BY_ID[p.plan && p.plan.n ? (Array.isArray(p.plan.n) ? p.plan.n[0] : p.plan.n) : ''];
+
+    var dateStr = new Date(p.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+
+    return '<div class="plan-item-card">' +
+      '<div class="plan-card-head">' +
+        '<div>' +
+          '<div class="plan-card-title">' + esc(p.name) + '</div>' +
+          '<div class="plan-card-date">' + daysCount + ' дней · Создан ' + dateStr + '</div>' +
+        '</div>' +
+        '<div class="plan-card-head-actions">' +
+          '<button class="plan-download-btn" onclick="handleExportPlanShopping(\'' + p.id + '\')" title="Скачать закупку (выбрать продукты перед скачиванием)">' +
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>' +
+              '<polyline points="7 10 12 15 17 10"></polyline>' +
+              '<line x1="12" y1="15" x2="12" y2="3"></line>' +
+            '</svg>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+      
+      '<div class="plan-card-metrics-box">' +
+        '<div class="plan-card-cal-row">' +
+          '<span>В среднем за день</span>' +
+          '<b>~' + dailyKcal.toLocaleString('ru-RU') + ' ккал</b>' +
+        '</div>' +
+        '<div class="plan-card-macros-chips">' +
+          '<div class="macro-mini-chip p"><b>' + dailyP + 'г</b> Белка</div>' +
+          '<div class="macro-mini-chip f"><b>' + dailyF + 'г</b> Жиров</div>' +
+          '<div class="macro-mini-chip c"><b>' + dailyC + 'г</b> Углев.</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="plan-card-preview">' +
+        '<div class="preview-meal-row">' +
+          '<div class="meal-tag-wrap"><i class="meal-color-dot b"></i><span class="meal-cat-name">Завтрак</span></div>' +
+          '<span class="meal-dish-name">' + (bDish ? esc(bDish.short) : '—') + '</span>' +
+        '</div>' +
+        '<div class="preview-meal-row">' +
+          '<div class="meal-tag-wrap"><i class="meal-color-dot l"></i><span class="meal-cat-name">Обед</span></div>' +
+          '<span class="meal-dish-name">' + (lDish ? esc(lDish.short) : '—') + '</span>' +
+        '</div>' +
+        '<div class="preview-meal-row">' +
+          '<div class="meal-tag-wrap"><i class="meal-color-dot d"></i><span class="meal-cat-name">Ужин</span></div>' +
+          '<span class="meal-dish-name">' + (dDish ? esc(dDish.short) : '—') + '</span>' +
+        '</div>' +
+        '<div class="preview-meal-row">' +
+          '<div class="meal-tag-wrap"><i class="meal-color-dot n"></i><span class="meal-cat-name">Сон</span></div>' +
+          '<span class="meal-dish-name">' + (nDish ? esc(nDish.short) : '—') + '</span>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="plan-card-btns">' +
+        '<button class="btn btn-solid" onclick="handleApplyPlan(\'' + p.id + '\')">Применить</button>' +
+        '<button class="btn btn-outline-danger" onclick="handleDeletePlan(\'' + p.id + '\')">Удалить</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function handleSaveCurrentPlan() {
+  var defaultName = 'Мой план (' + new Date().toLocaleDateString('ru-RU') + ')';
+  showCustomPrompt({
+    title: 'Сохранить план питания',
+    subtitle: 'Введите удобное название для сохраняемого рациона:',
+    defaultValue: defaultName,
+    confirmText: 'Сохранить',
+    onConfirm: function(name) {
+      saveCurrentPlanAs(name || defaultName);
+      renderSavedPlansList();
+      showCustomToast('План успешно сохранён!');
+    }
+  });
+}
+
+function handleApplyPlan(id) {
+  if (applySavedPlan(id)) {
+    renderSavedPlansList();
+    showCustomToast('План успешно применён!');
+  }
+}
+
+function handleExportPlanShopping(id) {
+  applySavedPlan(id);
+  showCustomToast('Переход к списку покупок...');
+  setTimeout(function() {
+    window.location.href = 'plan.html#shopping';
+  }, 350);
+}
+
+function handleDeletePlan(id) {
+  showCustomConfirm({
+    title: 'Удаление плана',
+    subtitle: 'Вы уверены, что хотите полностью удалить этот рацион из сохранённых?',
+    confirmText: 'Удалить',
+    isDanger: true,
+    onConfirm: function() {
+      deleteSavedPlan(id);
+      renderSavedPlansList();
+      showCustomToast('План удалён');
+    }
+  });
+}
+
+function handleCreateNewPlan() {
+  showCustomConfirm({
+    title: 'Новый план',
+    subtitle: 'Очистить текущий план конструктора и начать сборку с чистого листа?',
+    confirmText: 'Да, создать',
+    isDanger: false,
+    onConfirm: function() {
+      createNewBlankPlan();
+      renderSavedPlansList();
+      showCustomToast('Создан новый пустой план');
+      setTimeout(function() { window.location.href = 'index.html'; }, 400);
+    }
+  });
+}
+
+/* ---- ЭКСПОРТ СОХРАНЁННОГО РАЦИОНА В PDF И PNG ---- */
+function generateSavedPlanCanvas(planId) {
+  var plans = getSavedPlans();
+  var targetPlan = null;
+  for (var i = 0; i < plans.length; i++) {
+    if (plans[i].id === planId) { targetPlan = plans[i]; break; }
+  }
+  if (!targetPlan) return null;
+
+  var daysCount = targetPlan.days || 5;
+  var planData = targetPlan.plan || {};
+
+  var canvas = document.createElement('canvas');
+  canvas.width = 1240;
+  canvas.height = 1754;
+  var ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#FAFCFC';
+  ctx.fillRect(0, 0, 1240, 1754);
+
+  ctx.strokeStyle = '#DDE4E4';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(30, 30, 1180, 1694);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(50, 50, 1140, 130);
+  ctx.strokeStyle = '#DDE4E4';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(50, 50, 1140, 130);
+
+  ctx.fillStyle = '#146C7E';
+  ctx.font = 'bold 14px monospace, sans-serif';
+  ctx.fillText('ЗАГОТОВКА · ПЕРСОНАЛЬНЫЙ РАЦИОН ПИТАНИЯ', 80, 85);
+
+  ctx.fillStyle = '#16242B';
+  ctx.font = 'bold 30px system-ui, sans-serif';
+  ctx.fillText(targetPlan.name || 'Рацион питания', 80, 130);
+
+  var dateStr = new Date(targetPlan.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  ctx.fillStyle = '#586E78';
+  ctx.font = '13px monospace, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(daysCount + ' ДНЕЙ · СОЗДАН ' + dateStr.toUpperCase(), 1150, 85);
+  ctx.textAlign = 'left';
+
+  var dailyKcal = targetPlan.totals && targetPlan.totals.kcal ? Math.round(targetPlan.totals.kcal / daysCount) : 0;
+  var dailyP = targetPlan.totals && targetPlan.totals.p ? Math.round(targetPlan.totals.p / daysCount) : 0;
+  var dailyF = targetPlan.totals && targetPlan.totals.f ? Math.round(targetPlan.totals.f / daysCount) : 0;
+  var dailyC = targetPlan.totals && targetPlan.totals.c ? Math.round(targetPlan.totals.c / daysCount) : 0;
+
+  ctx.fillStyle = '#F4F7F6';
+  ctx.fillRect(50, 200, 1140, 90);
+  ctx.strokeStyle = '#DDE4E4';
+  ctx.strokeRect(50, 200, 1140, 90);
+
+  ctx.fillStyle = '#16242B';
+  ctx.font = 'bold 24px system-ui, sans-serif';
+  ctx.fillText('~' + dailyKcal.toLocaleString('ru-RU') + ' ккал / день', 80, 252);
+
+  ctx.font = '14px monospace, sans-serif';
+  ctx.fillStyle = '#146C7E'; ctx.fillText('Белки: ' + dailyP + 'г', 480, 252);
+  ctx.fillStyle = '#D97706'; ctx.fillText('Жиры: ' + dailyF + 'г', 700, 252);
+  ctx.fillStyle = '#059669'; ctx.fillText('Углеводы: ' + dailyC + 'г', 900, 252);
+
+  var MEAL_DEFS = [
+    { key: 'b', name: 'Завтрак', color: '#F59E0B' },
+    { key: 'l', name: 'Обед', color: '#0EA5E9' },
+    { key: 'd', name: 'Ужин', color: '#10B981' },
+    { key: 'n', name: 'Сон', color: '#8B5CF6' }
+  ];
+
+  var startY = 315;
+  var totalGap = (daysCount - 1) * 14;
+  var cardW = Math.floor((1140 - totalGap) / daysCount);
+
+  for (var dayIdx = 0; dayIdx < daysCount; dayIdx++) {
+    var cardX = 50 + dayIdx * (cardW + 14);
+    var cardH = 1370;
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(cardX, startY, cardW, cardH);
+    ctx.strokeStyle = '#DDE4E4';
+    ctx.strokeRect(cardX, startY, cardW, cardH);
+
+    ctx.fillStyle = '#146C7E';
+    ctx.fillRect(cardX, startY, cardW, 42);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 15px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ДЕНЬ ' + (dayIdx + 1), cardX + cardW / 2, startY + 26);
+    ctx.textAlign = 'left';
+
+    var mealY = startY + 65;
+    MEAL_DEFS.forEach(function(mDef) {
+      var dishId = planData[mDef.key] ? (Array.isArray(planData[mDef.key]) ? planData[mDef.key][dayIdx] : planData[mDef.key]) : '';
+      var dish = BY_ID[dishId];
+
+      ctx.fillStyle = mDef.color;
+      ctx.beginPath();
+      ctx.arc(cardX + 16, mealY + 4, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#586E78';
+      ctx.font = 'bold 11px monospace, sans-serif';
+      ctx.fillText(mDef.name.toUpperCase(), cardX + 28, mealY + 8);
+
+      ctx.fillStyle = dish ? '#16242B' : '#94A3B8';
+      ctx.font = 'bold 13px system-ui, sans-serif';
+      var titleText = dish ? dish.short : '—';
+      if (titleText.length > 18 && cardW < 200) titleText = titleText.substring(0, 16) + '...';
+      ctx.fillText(titleText, cardX + 16, mealY + 32);
+
+      if (dish && dish.mac) {
+        ctx.fillStyle = '#586E78';
+        ctx.font = '11px monospace, sans-serif';
+        ctx.fillText(dish.mac.kcal + ' ккал · ' + dish.mac.p + ' Б', cardX + 16, mealY + 50);
+      }
+
+      mealY += 315;
+    });
+  }
+
+  ctx.fillStyle = '#586E78';
+  ctx.font = '12px monospace, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Сгенерировано в сервисе Заготовка · Свой план питания', 620, 1720);
+
+  return canvas;
+}
+
+function exportSavedPlanPDF(planId) {
+  var canvas = generateSavedPlanCanvas(planId);
+  if (!canvas) return;
+
+  try {
+    var jsPDFClass = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+    if (jsPDFClass) {
+      var imgData = canvas.toDataURL('image/jpeg', 0.95);
+      var pdf = new jsPDFClass('p', 'mm', 'a4');
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      pdf.save('Рацион-питания.pdf');
+      showCustomToast('PDF успешно скачан!');
+    } else {
+      exportSavedPlanPNG(planId);
+    }
+  } catch(err) {
+    console.error('PDF export error:', err);
+    exportSavedPlanPNG(planId);
+  }
+}
+
+function exportSavedPlanPNG(planId) {
+  var canvas = generateSavedPlanCanvas(planId);
+  if (!canvas) return;
+
+  try {
+    var imgData = canvas.toDataURL('image/png');
+    var link = document.createElement('a');
+    link.download = 'Рацион-питания.png';
+    link.href = imgData;
+    link.click();
+    showCustomToast('PNG успешно скачан!');
+  } catch(err) {
+    console.error('PNG export error:', err);
+  }
+}
+
+/* ---- КАСТОМНЫЙ ДИАЛОГ СИСТЕМЫ (MODAL / TOAST) ---- */
+var customDialogCallback = null;
+
+function showCustomPrompt(opts) {
+  var backdrop = document.getElementById('custom-dialog-backdrop');
+  if (!backdrop) injectCustomDialogHTML();
+  backdrop = document.getElementById('custom-dialog-backdrop');
+
+  document.getElementById('custom-dialog-title').textContent = opts.title || 'Ввод данных';
+  document.getElementById('custom-dialog-sub').textContent = opts.subtitle || '';
+  
+  var input = document.getElementById('custom-dialog-input');
+  input.style.display = 'block';
+  input.value = opts.defaultValue || '';
+
+  var okBtn = document.getElementById('custom-dialog-ok');
+  okBtn.textContent = opts.confirmText || 'ОК';
+  okBtn.className = 'btn btn-solid';
+
+  customDialogCallback = opts.onConfirm || null;
+  backdrop.classList.add('active');
+  setTimeout(function() { input.focus(); input.select(); }, 50);
+}
+
+function showCustomConfirm(opts) {
+  var backdrop = document.getElementById('custom-dialog-backdrop');
+  if (!backdrop) injectCustomDialogHTML();
+  backdrop = document.getElementById('custom-dialog-backdrop');
+
+  document.getElementById('custom-dialog-title').textContent = opts.title || 'Подтверждение';
+  document.getElementById('custom-dialog-sub').textContent = opts.subtitle || '';
+  
+  var input = document.getElementById('custom-dialog-input');
+  input.style.display = 'none';
+
+  var okBtn = document.getElementById('custom-dialog-ok');
+  okBtn.textContent = opts.confirmText || 'Да';
+  okBtn.className = 'btn btn-solid' + (opts.isDanger ? ' danger' : '');
+
+  customDialogCallback = opts.onConfirm || null;
+  backdrop.classList.add('active');
+}
+
+function closeCustomDialog() {
+  var backdrop = document.getElementById('custom-dialog-backdrop');
+  if (backdrop) backdrop.classList.remove('active');
+  customDialogCallback = null;
+}
+
+function submitCustomDialog() {
+  var input = document.getElementById('custom-dialog-input');
+  var val = input.style.display !== 'none' ? input.value.trim() : true;
+  var cb = customDialogCallback;
+  closeCustomDialog();
+  if (cb) cb(val);
+}
+
+function showCustomToast(msg) {
+  var toast = document.getElementById('custom-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.className = 'custom-toast';
+    toast.id = 'custom-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = '✓ ' + msg;
+  toast.classList.add('active');
+  setTimeout(function() { toast.classList.remove('active'); }, 2800);
+}
+
+function injectCustomDialogHTML() {
+  if (document.getElementById('custom-dialog-backdrop')) return;
+  var div = document.createElement('div');
+  div.className = 'custom-dialog-backdrop';
+  div.id = 'custom-dialog-backdrop';
+  div.innerHTML =
+    '<div class="custom-dialog-box">' +
+      '<div class="custom-dialog-h">' +
+        '<h3 id="custom-dialog-title">Заголовок</h3>' +
+        '<button class="custom-dialog-close" onclick="closeCustomDialog()">✕</button>' +
+      '</div>' +
+      '<p class="custom-dialog-sub" id="custom-dialog-sub"></p>' +
+      '<input type="text" class="custom-dialog-input" id="custom-dialog-input">' +
+      '<div class="custom-dialog-btns">' +
+        '<button class="btn" onclick="closeCustomDialog()">Отмена</button>' +
+        '<button class="btn btn-solid" id="custom-dialog-ok" onclick="submitCustomDialog()">ОК</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(div);
+
+  div.addEventListener('click', function(e) {
+    if (e.target === div) closeCustomDialog();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (!div.classList.contains('active')) return;
+    if (e.key === 'Enter') submitCustomDialog();
+    if (e.key === 'Escape') closeCustomDialog();
+  });
+}
+
+initProfilePage();
+</script>
+</body>
+</html>

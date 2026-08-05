@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Конструктор — четыре приёма пищи на 5 дней</title>
+<meta name="description" content="Соберите пять дней из завтраков, обедов, ужинов и приёмов перед сном. Список покупок формируется автоматически и делится на заходы: комплект из четырёх блюд за один раз.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ---- сетка конструктора ---- */
+.grid{display:grid; gap:14px}
+@media(min-width:900px){.grid{grid-template-columns:repeat(5,1fr); gap:12px}}
+.col{border:1px solid var(--line); border-radius:4px; background:var(--frost); overflow:hidden}
+.col-h{display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+  padding:12px 14px; border-bottom:1px solid var(--line); background:#EFF4F5}
+.col-h b{font-family:var(--disp); font-size:14px; letter-spacing:-.02em}
+.col-h em{font-style:normal; font-family:var(--mono); font-size:11px; color:var(--slate)}
+.slot{padding:11px 14px; border-bottom:1px dotted var(--line)}
+.slot:last-of-type{border-bottom:0}
+.slot label{display:block; font-family:var(--mono); font-size:10.5px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--slate); margin-bottom:6px}
+.slot select{width:100%; font-family:var(--body); font-size:14px; color:var(--steel);
+  padding:8px 9px; border:1px solid var(--line); border-radius:3px;
+  background:#fff; cursor:pointer}
+.slot select:hover{border-color:var(--brine)}
+.slot.b label{color:var(--badge-b)}
+.slot.l label{color:var(--badge-l)}
+.slot.d label{color:var(--badge-d)}
+.slot.n label{color:var(--badge-n)}
+.col-f{padding:10px 14px; border-top:1px solid var(--line);
+  font-family:var(--mono); font-size:11.5px; color:var(--slate); background:var(--ing-bg)}
+.col-f b{color:var(--steel); font-weight:500}
+.col-f i{display:block; font-style:normal; margin-top:3px}
+.warn{color:#A8471C}
+
+/* ---- добор до нормы ---- */
+.adds{padding:9px 14px; background:#F7FAFA}
+.adds em{display:block; font-style:normal; font-family:var(--mono); font-size:10px;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--slate); margin-bottom:5px}
+.adds u{display:block; text-decoration:none; font-size:13px; line-height:1.45}
+.adds u span{font-family:var(--mono); font-size:11px; color:var(--slate)}
+.adds .none{font-size:13px; color:var(--badge-d)}
+
+/* ---- итог недели ---- */
+.tot{display:grid; gap:1px; margin-top:22px; background:var(--line);
+  border:1px solid var(--line); border-radius:4px; overflow:hidden}
+@media(min-width:620px){.tot{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:940px){.tot{grid-template-columns:repeat(6,1fr)}}
+.tot div{background:var(--frost); padding:16px 18px}
+.tot span{display:block; font-family:var(--mono); font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:5px}
+.tot b{font-family:var(--disp); font-size:22px; letter-spacing:-.02em}
+.tot i{display:block; font-style:normal; font-family:var(--mono); font-size:11px;
+  color:var(--slate); margin-top:5px}
+/* попадание в норму: цвет ведёт глаз, подпись рядом объясняет — на цвет одна
+   опора не годится, страницу читают и в чёрно-белой печати */
+.g-ok{color:#3E7A2E} .g-low{color:#A8471C} .g-high{color:#A8471C}
+.g-partial{color:var(--slate)}
+.tot-note{margin:12px 0 0; max-width:60ch; font-size:14px; color:var(--slate)}
+
+/* ---- заходы в магазин ---- */
+.run{border:1px solid var(--line); border-radius:4px; background:var(--frost);
+  overflow:hidden; margin-bottom:20px}
+.run-h{display:flex; align-items:baseline; gap:10px 16px; flex-wrap:wrap;
+  padding:18px 22px; border-bottom:1px solid var(--line); background:#EFF4F5}
+.run-h b{font-family:var(--disp); font-size:17px; letter-spacing:-0.02em}
+.run-h em{font-style:normal; font-family:var(--mono); font-size:12px; color:var(--slate)}
+.mode-chips, .days-chips{display:flex; gap:6px; flex-wrap:wrap}
+.saved-plans-select{padding:6px 12px; border:1px solid var(--line); border-radius:4px; font-family:inherit; font-size:13px; background:#FFFFFF; color:var(--steel); cursor:pointer}
+.saved-plans-select:hover{border-color:var(--brine)}
+.plan-deploy-panel{
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+  margin-bottom:20px;
+}
+.run-dish{display:flex; gap:8px; flex-wrap:wrap; padding:14px 22px;
+  border-bottom:1px dotted var(--line); font-size:14.5px; align-items:center}
+.chip{font-family:var(--mono); font-size:11.5px; padding:4px 9px; border-radius:3px;
+  background:#E4EDEF; color:var(--brine); white-space:nowrap}
+.run-aisles{display:grid; gap:26px; padding:22px}
+@media(min-width:700px){.run-aisles{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.run-aisles{grid-template-columns:repeat(3,1fr)}}
+.bar-ctl{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:26px}
+.hint{margin:0 0 26px; max-width:56ch; font-size:15px; color:var(--slate)}
+.empty{padding:30px 22px; border:1px dashed var(--line); border-radius:4px;
+  color:var(--slate); font-size:15px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="index.html">Заготовка <span>·</span> свой план</a>
+    <nav class="nav">
+      <a href="profile.html">Профиль</a>
+      <a href="index.html">Рецепты</a>
+      <a href="plan.html" aria-current="page">Конструктор</a>
+      <a href="calendar.html">Календарь</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero wrap">
+  <h1>Соберите свой план —<br>закупка <em>соберётся</em><br>сама.</h1>
+  <p class="lede">Выберите завтрак, обед, ужин и приём перед сном на каждый день.
+    Ниже пересчитаются БЖУ с клетчаткой и появится список покупок.</p>
+</section>
+
+<section class="sec wrap">
+  <div class="plan-deploy-panel noprint">
+    <div class="deploy-group">
+      <span class="lbl">Режим заполнения:</span>
+      <div class="mode-chips" id="plan-mode-selector">
+        <button class="chip" data-mode="custom" aria-pressed="true">Разное меню по дням</button>
+        <button class="chip" data-mode="repeat">Единый рацион на все дни</button>
+      </div>
+    </div>
+    <div class="deploy-group">
+      <span class="lbl">Длительность плана:</span>
+      <div class="days-chips" id="plan-days-selector">
+        <button class="chip" data-days="1">1 день</button>
+        <button class="chip" data-days="2">2 дня</button>
+        <button class="chip" data-days="3">3 дня</button>
+        <button class="chip" data-days="4">4 дня</button>
+        <button class="chip" data-days="5" aria-pressed="true">5 дней</button>
+        <button class="chip" data-days="6">6 дней</button>
+        <button class="chip" data-days="7">7 дней</button>
+      </div>
+    </div>
+    <div class="deploy-group">
+      <span class="lbl">Загрузить рацион из профиля:</span>
+      <select id="saved-plans-select" class="saved-plans-select" onchange="handleSelectSavedPlanInConstructor(this.value)">
+        <option value="">— Выбрать рацион из профиля —</option>
+      </select>
+    </div>
+  </div>
+
+  <h2 class="sec-h" id="plan-title">План на 5 дней</h2>
+  <div class="bar-ctl noprint">
+    <button class="btn" id="preset">Сгенерировать случайный план</button>
+    <button class="btn" id="clear">Очистить всё</button>
+    <a class="btn btn-solid" href="calendar.html">В календарь →</a>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="tot" id="tot"></div>
+  <p class="tot-note">Средние значения посчитаны вместе с добором, который предложен
+    под каждым днём: заготовка сознательно не закрывает норму целиком. В скобках
+    под каждым числом — сколько даёт одна заготовка, без добора.</p>
+</section>
+
+<section class="sec wrap" id="shopping">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px" class="noprint">
+    <h2 class="sec-h" style="margin:0">Список покупок</h2>
+    <div style="display:flex; gap:8px; flex-wrap:wrap">
+      <button class="btn" id="btn-export-pdf" onclick="exportShoppingPDF()">Экспорт в PDF</button>
+      <button class="btn" id="btn-export-jpg" onclick="exportShoppingJPG()">Скачать JPG</button>
+    </div>
+  </div>
+  <div id="runs"></div>
+</section>
+</main>
+
+<footer class="foot wrap">
+  <span>План сохраняется в браузере</span>
+  <span><a href="index.html">Все рецепты →</a></span>
+</footer>
+
+<script src="data.js"></script>
+<script src="dishes-b.js"></script>
+<script src="dishes-l.js"></script>
+<script src="dishes-d.js"></script>
+<script src="dishes-n.js"></script>
+<script src="app.js"></script>
+<script src="profile.js"></script>
+<script src="drawer.js"></script>
+<script src="jspdf.umd.min.js"></script>
+<script>
+/* Готовый план подобран перебором: два захода, 20 приёмов из 20,
+   30 видов растений и два рыбных приёма за пятидневку. Это отправная точка —
+   любой слот можно поменять, счётчики внизу пересчитаются. */
+var PRESET = {
+  b: ['omelet-beans', 'oat-raspberry', 'omelet-beans', 'oat-raspberry', 'oat-raspberry'],
+  l: ['lentil-rice', 'lentil-rice', 'tofu-soba-edamame', 'tofu-soba-edamame', 'tofu-soba-edamame'],
+  d: ['egg-avocado-arugula', 'squid-cucumber', 'egg-avocado-arugula', 'squid-cucumber', 'squid-cucumber'],
+  n: ['tvorog-egg-white', 'tvorog-egg-white', 'tvorog-egg-white', 'yogurt-flax', 'yogurt-flax']
+};
+var EMPTY = {};
+MEALS.forEach(function (m) { EMPTY[m.key] = ['', '', '', '', '']; });
+
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+var planDaysCount = load('mp-plan-days', 5);
+var rationMode = load('mp-plan-mode', 'custom');
+
+(function initControls() {
+  var dBox = document.getElementById('plan-days-selector');
+  if (dBox) {
+    var btn = dBox.querySelector('button[data-days="' + planDaysCount + '"]');
+    if (btn) pressBtn(dBox, btn);
+  }
+  var mBox = document.getElementById('plan-mode-selector');
+  if (mBox) {
+    var btnM = mBox.querySelector('button[data-mode="' + rationMode + '"]');
+    if (btnM) pressBtn(mBox, btnM);
+  }
+})();
+
+document.getElementById('plan-days-selector').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-days]');
+  if (!b) return;
+  planDaysCount = parseInt(b.dataset.days, 10);
+  pressBtn(this, b);
+  save('mp-plan-days', planDaysCount);
+  drawGrid();
+  refresh();
+});
+
+document.getElementById('plan-mode-selector').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-mode]');
+  if (!b) return;
+  rationMode = b.dataset.mode;
+  pressBtn(this, b);
+  save('mp-plan-mode', rationMode);
+  if (rationMode === 'repeat') {
+    syncRepeatRation();
+  }
+  drawGrid();
+  refresh();
+});
+
+function pressBtn(box, active) {
+  box.querySelectorAll('button').forEach(function (x) {
+    x.setAttribute('aria-pressed', x === active ? 'true' : 'false');
+  });
+}
+
+function syncRepeatRation() {
+  MEALS.forEach(function (m) {
+    var firstVal = plan[m.key][0] || '';
+    for (var i = 1; i < 7; i++) {
+      plan[m.key][i] = firstVal;
+    }
+  });
+  save('mp-plan', plan);
+}
+
+/* В браузере может лежать план, сохранённый до появления приёма перед сном,
+   и в нём нет ключа n. Достраиваем недостающие ряды, иначе drawGrid падает. */
+var plan = load('mp-plan', null) || clone(EMPTY);
+MEALS.forEach(function (m) {
+  if (!Array.isArray(plan[m.key])) plan[m.key] = ['', '', '', '', '', '', ''];
+  for (var i = 0; i < 7; i++) if (typeof plan[m.key][i] !== 'string') plan[m.key][i] = '';
+});
+if (rationMode === 'repeat') {
+  syncRepeatRation();
+}
+
+/* ---- сетка дней ---- */
+function drawGrid() {
+  var gridEl = document.getElementById('grid');
+  var titleEl = document.getElementById('plan-title');
+  if (titleEl) {
+    titleEl.textContent = 'Свой план (на ' + planDaysCount + ' ' + plural(planDaysCount, 'день') + ')';
+  }
+
+  if (rationMode === 'repeat') {
+    syncRepeatRation();
+    // В режиме «Единый рацион» отображаем ровно 1 колонку для настройки всей программы
+    gridEl.style.gridTemplateColumns = 'minmax(280px, 460px)';
+
+    var colHeader = 'Единая программа (на ' + planDaysCount + ' ' + plural(planDaysCount, 'день') + ')';
+
+    gridEl.innerHTML = '<div class="col">' +
+      '<div class="col-h"><b>' + esc(colHeader) + '</b><em id="kc0"></em></div>' +
+      MEALS.map(function (m) {
+        return '<div class="slot ' + m.key + '">' +
+          '<label for="s-' + m.key + '0">' + m.name + '</label>' +
+          '<select id="s-' + m.key + '0" data-meal="' + m.key + '" data-day="0">' +
+            '<option value="">— пропустить —</option>' +
+            dishesFor(m.key).map(function (d) {
+              var sel = plan[m.key][0] === d.id ? ' selected' : '';
+              return '<option value="' + d.id + '"' + sel + '>' + esc(d.short) + '</option>';
+            }).join('') +
+          '</select></div>';
+      }).join('') +
+      '<div class="adds" id="a0"></div>' +
+      '<div class="col-f" id="f0"></div>' +
+    '</div>';
+  } else {
+    // В режиме «Разное меню» отображаем planDaysCount колонок
+    gridEl.style.gridTemplateColumns = 'repeat(' + planDaysCount + ', minmax(170px, 1fr))';
+
+    var daysArr = [];
+    for (var i = 0; i < planDaysCount; i++) {
+      daysArr.push('День ' + (i + 1));
+    }
+
+    gridEl.innerHTML = daysArr.map(function (name, day) {
+      return '<div class="col">' +
+        '<div class="col-h"><b>' + name + '</b><em id="kc' + day + '"></em></div>' +
+        MEALS.map(function (m) {
+          return '<div class="slot ' + m.key + '">' +
+            '<label for="s-' + m.key + day + '">' + m.name + '</label>' +
+            '<select id="s-' + m.key + day + '" data-meal="' + m.key + '" data-day="' + day + '">' +
+              '<option value="">— пропустить —</option>' +
+              dishesFor(m.key).map(function (d) {
+                var sel = plan[m.key][day] === d.id ? ' selected' : '';
+                return '<option value="' + d.id + '"' + sel + '>' + esc(d.short) + '</option>';
+              }).join('') +
+            '</select></div>';
+        }).join('') +
+        '<div class="adds" id="a' + day + '"></div>' +
+        '<div class="col-f" id="f' + day + '"></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('#grid select'), function (s) {
+    s.addEventListener('change', function () {
+      var mealKey = s.dataset.meal;
+      var dayIdx = +s.dataset.day;
+      plan[mealKey][dayIdx] = s.value;
+
+      if (rationMode === 'repeat') {
+        for (var i = 0; i < 7; i++) {
+          plan[mealKey][i] = s.value;
+        }
+      }
+      save('mp-plan', plan);
+      refresh();
+    });
+  });
+}
+
+function refresh() {
+  var sum = { p: 0, f: 0, c: 0, fib: 0, kcal: 0 };
+  var raw = { p: 0, f: 0, c: 0, fib: 0, kcal: 0 };
+
+  var pTitle = document.getElementById('plan-title');
+  if (pTitle) pTitle.textContent = 'План на ' + planDaysCount + ' ' + plural(planDaysCount, 'день');
+
+  for (var d = 0; d < planDaysCount; d++) {
+    var t = dayTotals(plan, d);
+    var add = t.n ? suggestAddons(t, d) : { items: [], sum: null };
+    var s = add.sum || { p: 0, f: 0, c: 0, fib: 0, kcal: 0 };
+
+    ['p', 'f', 'c', 'fib', 'kcal'].forEach(function (k) {
+      raw[k] += t[k];
+      sum[k] += t[k] + s[k];
+    });
+
+    var kcEl = document.getElementById('kc' + d);
+    if (kcEl) kcEl.textContent = t.n ? (t.kcal + s.kcal) + ' ккал' : '—';
+
+    var fEl = document.getElementById('f' + d);
+    if (fEl) fEl.innerHTML = t.n
+      ? '<b>' + (t.p + s.p) + '</b> Б · <b>' + (t.f + s.f) + '</b> Ж · <b>' +
+        (t.c + s.c) + '</b> У' +
+        '<i>клетчатка <b>' + (t.fib + s.fib) + '</b> г · заготовка ' +
+        t.kcal + ' ккал</i>'
+      : '<span class="warn">день пуст</span>';
+
+    var aEl = document.getElementById('a' + d);
+    if (aEl) aEl.innerHTML = !t.n
+      ? ''
+      : add.items.length
+        ? '<em>Добрать · ' + add.sum.kcal + ' ккал</em>' +
+          add.items.map(function (x) {
+            return '<u>' + esc(x.n) + ' <span>' + esc(x.q) + '</span></u>';
+          }).join('')
+        : '<p class="none">Норма закрыта заготовкой — добирать нечего.</p>';
+  }
+
+  drawTotals(sum, raw);
+  drawRuns();
+}
+
+function drawTotals(sum, raw) {
+  var wc = weekCheck(plan, planDaysCount);
+  var w = wc.totals;
+  var full = wc.full;
+  function st(state) { return full ? state : 'partial'; }
+  function avg(x) { return Math.round(x / planDaysCount); }
+
+  var totalSlots = MEALS.length * planDaysCount;
+
+  document.getElementById('tot').innerHTML =
+    cell('Приёмов заполнено', w.filled + ' / ' + totalSlots,
+         w.filled === totalSlots ? 'ok' : 'partial',
+         w.filled === totalSlots ? 'план собран' : 'план ещё не собран') +
+    cell('Калорий в день', w.filled ? avg(sum.kcal) : '—',
+         st(hit(avg(sum.kcal), PROFILE.kcal)),
+         'норма ' + PROFILE.kcal.min + '–' + PROFILE.kcal.max +
+         (w.filled ? ' · заготовка ' + avg(raw.kcal) : '')) +
+    cell('Белка в день', w.filled ? avg(sum.p) + ' г' : '—',
+         st(hit(avg(sum.p), PROFILE.p)),
+         'норма ' + PROFILE.p.min + '–' + PROFILE.p.max + ' г' +
+         (w.filled ? ' · заготовка ' + avg(raw.p) : '')) +
+    cell('Клетчатки в день', w.filled ? avg(sum.fib) + ' г' : '—',
+         st(hit(avg(sum.fib), PROFILE.fib)),
+         'норма от ' + PROFILE.fib.min + ' г' +
+         (w.filled ? ' · заготовка ' + avg(raw.fib) : '')) +
+    cell('Растений за план', w.plants + ' / ' + WEEK_GOALS.plants.min,
+         st(wc.plants), 'считаем виды, а не порции') +
+    cell('Жирная рыба', w.fish + ' / ' + WEEK_GOALS.fish.min,
+         st(wc.fish), 'приёмов с омега-3');
+}
+
+/* Класс вешаем на <b>, а не на обёртку: .tot span уже задаёт цвет подписи
+   и перебил бы цветовой класс на вложенном элементе. */
+function cell(label, value, state, note) {
+  return '<div><span>' + label + '</span>' +
+    '<b' + (state ? ' class="g-' + state + '"' : '') + '>' + value + '</b>' +
+    (note ? '<i>' + note + '</i>' : '') + '</div>';
+}
+
+/* ---- закупка по заходам ---- */
+function drawRuns() {
+  var list = planDishes(plan, planDaysCount);
+  var box = document.getElementById('runs');
+  if (!list.length) {
+    box.innerHTML = '<div class="empty">Выберите хотя бы одно блюдо — список покупок появится здесь.</div>';
+    return;
+  }
+  var checkedItems = {};
+  try { checkedItems = JSON.parse(localStorage.getItem('mp-checked-items') || '{}'); } catch(e){}
+
+  var runs = makeRuns(list);
+  box.innerHTML = runs.map(function (r, idx) {
+    var titleText = runs.length > 1 ? 'Список покупок №' + (idx + 1) : 'Список покупок';
+    return '<article class="run">' +
+      '<div class="run-h"><b>' + titleText + '</b></div>' +
+      r.items.map(function (e) {
+        var need = e.portions + ' ' + plural(e.portions, 'порция');
+        return '<div class="run-dish">' +
+          '<span class="badge ' + e.dish.meal + '">' + mealName(e.dish.meal) + '</span>' +
+          '<a href="index.html#' + e.dish.id + '" style="color:inherit">' + esc(e.dish.short) + '</a>' +
+          '<span class="chip">' + need + '</span>' +
+        '</div>';
+      }).join('') +
+      '<div class="run-aisles">' + r.aisles.map(function (a) {
+        return '<div class="aisle"><h3>' + a.name + '</h3>' +
+          a.items.map(function (i) {
+            var itemKey = a.name + '|' + i.n;
+            var isChecked = Boolean(checkedItems[itemKey]);
+            return '<label class="' + (isChecked ? 'checked' : '') + '"><input type="checkbox" data-key="' + esc(itemKey) + '"' + (isChecked ? ' checked' : '') + '>' + esc(i.n) +
+              '<span class="qty">' + fmtBuy(i.q, i.u) + '</span></label>';
+          }).join('') + '</div>';
+      }).join('') + '</div>' +
+    '</article>';
+  }).join('');
+}
+
+document.getElementById('runs').addEventListener('change', function (e) {
+  if (e.target && e.target.type === 'checkbox' && e.target.dataset.key) {
+    var key = e.target.dataset.key;
+    var checkedItems = {};
+    try { checkedItems = JSON.parse(localStorage.getItem('mp-checked-items') || '{}'); } catch(ex){}
+    if (e.target.checked) {
+      checkedItems[key] = true;
+      if (e.target.parentElement) e.target.parentElement.classList.add('checked');
+    } else {
+      delete checkedItems[key];
+      if (e.target.parentElement) e.target.parentElement.classList.remove('checked');
+    }
+    localStorage.setItem('mp-checked-items', JSON.stringify(checkedItems));
+  }
+});
+
+function generateRandomPlan() {
+  var newPlan = { b: [], l: [], d: [], n: [] };
+  MEALS.forEach(function (m) {
+    var pool = DISHES.filter(function (d) { return d.meal === m.key; });
+    if (!pool.length) return;
+    var d1 = pool[Math.floor(Math.random() * pool.length)];
+    var d2 = pool[Math.floor(Math.random() * pool.length)];
+    newPlan[m.key] = [];
+    var split = Math.max(1, Math.floor(planDaysCount / 2));
+    for (var i = 0; i < 7; i++) {
+      newPlan[m.key].push(i < split ? d1.id : d2.id);
+    }
+  });
+  return newPlan;
+}
+
+/* ---- кнопки ---- */
+document.getElementById('preset').addEventListener('click', function () {
+  plan = generateRandomPlan();
+  save('mp-plan', plan);
+  if (rationMode === 'repeat') syncRepeatRation();
+  drawGrid();
+  refresh();
+});
+document.getElementById('clear').addEventListener('click', function () {
+  plan = clone(EMPTY); save('mp-plan', plan); drawGrid(); refresh();
+});
+
+function generateShoppingCanvas() {
+  var list = planDishes(plan, planDaysCount);
+  if (!list.length) {
+    alert('Сначала выберите хотя бы одно блюдо для составления плана.');
+    return null;
+  }
+  var aisles = aggregate(list);
+  var daysText = planDaysCount + ' ' + plural(planDaysCount, 'день');
+  var totalItemsCount = aisles.reduce(function(acc, a){ return acc + a.items.length; }, 0);
+
+  var checkedItems = {};
+  try { checkedItems = JSON.parse(localStorage.getItem('mp-checked-items') || '{}'); } catch(e){}
+
+  // Создаем холст высочайшего разрешения (1240 x 1754 px)
+  var canvas = document.createElement('canvas');
+  canvas.width = 1240;
+  canvas.height = 1754;
+  var ctx = canvas.getContext('2d');
+
+  // Фон
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, 1240, 1754);
+
+  // Шапка
+  ctx.fillStyle = '#146C7E';
+  ctx.fillRect(50, 50, 1140, 5);
+
+  ctx.fillStyle = '#16242B';
+  ctx.font = 'bold 34px system-ui, -apple-system, sans-serif';
+  ctx.fillText('СПИСОК ПОКУПОК', 50, 108);
+
+  ctx.fillStyle = '#586E78';
+  ctx.font = 'bold 15px monospace, sans-serif';
+  ctx.fillText(('Заготовка · План на ' + daysText).toUpperCase(), 50, 138);
+
+  ctx.fillStyle = '#146C7E';
+  ctx.font = 'bold 15px monospace, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('Ингредиентов: ' + totalItemsCount, 1190, 138);
+  ctx.textAlign = 'left';
+
+  ctx.strokeStyle = '#C4D1D5';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(50, 158);
+  ctx.lineTo(1190, 158);
+  ctx.stroke();
+
+  // Две колонки
+  var colW = 545;
+  var leftX = 50;
+  var rightX = 645;
+
+  var leftAisles = [];
+  var rightAisles = [];
+  aisles.forEach(function(a, idx) {
+    if (idx % 2 === 0) leftAisles.push(a);
+    else rightAisles.push(a);
+  });
+
+  function drawColumn(aislesList, startX) {
+    var curY = 188;
+    aislesList.forEach(function(a) {
+      var itemH = 34;
+      var headH = 44;
+      var cardH = headH + (a.items.length * itemH) + 12;
+
+      // Карточка отдела
+      ctx.fillStyle = '#FAFCFC';
+      ctx.fillRect(startX, curY, colW, cardH);
+      ctx.strokeStyle = '#C4D1D5';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(startX, curY, colW, cardH);
+
+      // Заголовок отдела
+      ctx.fillStyle = '#146C7E';
+      ctx.font = 'bold 15px monospace, sans-serif';
+      ctx.fillText(a.name.toUpperCase(), startX + 16, curY + 28);
+
+      ctx.strokeStyle = '#C4D1D5';
+      ctx.beginPath();
+      ctx.moveTo(startX + 16, curY + 36);
+      ctx.lineTo(startX + colW - 16, curY + 36);
+      ctx.stroke();
+
+      // Ингредиенты
+      var itemY = curY + 64;
+      a.items.forEach(function(i) {
+        var itemKey = a.name + '|' + i.n;
+        var isChecked = Boolean(checkedItems[itemKey]);
+
+        // Чекбокс
+        var cbX = startX + 16;
+        var cbY = itemY - 14;
+        if (isChecked) {
+          ctx.fillStyle = '#146C7E';
+          ctx.fillRect(cbX, cbY, 16, 16);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('✓', cbX + 3, cbY + 12);
+        } else {
+          ctx.strokeStyle = '#586E78';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(cbX, cbY, 16, 16);
+        }
+
+        // Название
+        ctx.font = isChecked ? '15px system-ui, sans-serif' : '500 15px system-ui, sans-serif';
+        ctx.fillStyle = isChecked ? '#888888' : '#16242B';
+        ctx.fillText(i.n, startX + 44, itemY);
+
+        if (isChecked) {
+          var nameW = ctx.measureText(i.n).width;
+          ctx.strokeStyle = '#888888';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(startX + 44, itemY - 5);
+          ctx.lineTo(startX + 44 + nameW, itemY - 5);
+          ctx.stroke();
+        }
+
+        // Количество
+        var qtyStr = fmtBuy(i.q, i.u);
+        ctx.font = 'bold 15px monospace, sans-serif';
+        ctx.fillStyle = isChecked ? '#888888' : '#16242B';
+        ctx.textAlign = 'right';
+        ctx.fillText(qtyStr, startX + colW - 16, itemY);
+        ctx.textAlign = 'left';
+
+        itemY += itemH;
+      });
+
+      curY += cardH + 20;
+    });
+  }
+
+  drawColumn(leftAisles, leftX);
+  drawColumn(rightAisles, rightX);
+
+  // Подвал
+  ctx.strokeStyle = '#C4D1D5';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(50, 1690);
+  ctx.lineTo(1190, 1690);
+  ctx.stroke();
+
+  ctx.fillStyle = '#586E78';
+  ctx.font = '13px monospace, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Заготовка · Персональный рацион питания', 620, 1720);
+
+  return canvas;
+}
+
+function exportShoppingPDF() {
+  var canvas = generateShoppingCanvas();
+  if (!canvas) return;
+
+  var btn = document.getElementById('btn-export-pdf');
+  var origText = btn ? btn.textContent : '';
+  if (btn) btn.textContent = '⏳ Генерируется PDF...';
+
+  setTimeout(function() {
+    try {
+      var imgData = canvas.toDataURL('image/jpeg', 0.95);
+      var jsPDFClass = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+
+      if (jsPDFClass) {
+        var pdf = new jsPDFClass('p', 'mm', 'a4');
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+        pdf.save('Список-покупок-' + planDaysCount + '-дней.pdf');
+      } else {
+        alert('Библиотека PDF загружается, попробуйте еще раз через секунду или скачайте JPG.');
+      }
+    } catch(err) {
+      console.error('PDF export error:', err);
+      alert('Ошибка при экспорте PDF: ' + err.message);
+    }
+    if (btn) btn.textContent = origText;
+  }, 100);
+}
+
+function exportShoppingJPG() {
+  var canvas = generateShoppingCanvas();
+  if (!canvas) return;
+
+  var btn = document.getElementById('btn-export-jpg');
+  var origText = btn ? btn.textContent : '';
+  if (btn) btn.textContent = '⏳ Генерируется JPG...';
+
+  setTimeout(function() {
+    try {
+      var imgData = canvas.toDataURL('image/jpeg', 0.95);
+      var link = document.createElement('a');
+      link.download = 'Список-покупок-' + planDaysCount + '-дней.jpg';
+      link.href = imgData;
+      link.click();
+    } catch(err) {
+      console.error('JPG export error:', err);
+    }
+    if (btn) btn.textContent = origText;
+  }, 100);
+}
+
+function populateSavedPlansDropdownInConstructor() {
+  var select = document.getElementById('saved-plans-select');
+  if (!select) return;
+  var plans = typeof getSavedPlans === 'function' ? getSavedPlans() : [];
+  if (!plans.length) {
+    select.innerHTML = '<option value="">(Сохранённых планов в профиле пока нет)</option>';
+    return;
+  }
+  select.innerHTML = '<option value="">— Загрузить из профиля (' + plans.length + ') —</option>' +
+    plans.map(function(p) {
+      var days = p.days || 5;
+      var dailyKcal = p.totals && p.totals.kcal ? Math.round(p.totals.kcal / days) : 0;
+      return '<option value="' + p.id + '">' + esc(p.name) + ' (' + days + ' дн. · ~' + dailyKcal + ' ккал/день)</option>';
+    }).join('');
+}
+
+function handleSelectSavedPlanInConstructor(id) {
+  if (!id) return;
+  if (typeof applySavedPlan === 'function' && applySavedPlan(id)) {
+    plan = load('mp-plan', null) || clone(EMPTY);
+    MEALS.forEach(function (m) {
+      if (!Array.isArray(plan[m.key])) plan[m.key] = ['', '', '', '', '', '', ''];
+      for (var i = 0; i < 7; i++) if (typeof plan[m.key][i] !== 'string') plan[m.key][i] = '';
+    });
+    planDaysCount = load('mp-plan-days', 5);
+    rationMode = load('mp-plan-mode', 'repeat');
+
+    var daysBtn = document.querySelector('#plan-days-selector button[data-days="' + planDaysCount + '"]');
+    if (daysBtn) pressBtn(document.getElementById('plan-days-selector'), daysBtn);
+
+    var modeBtn = document.querySelector('#plan-mode-selector button[data-mode="' + rationMode + '"]');
+    if (modeBtn) pressBtn(document.getElementById('plan-mode-selector'), modeBtn);
+
+    drawGrid();
+    refresh();
+    if (typeof showCustomToast === 'function') showCustomToast('Загружен рацион из профиля!');
+  }
+}
+
+drawGrid();
+refresh();
+populateSavedPlansDropdownInConstructor();
+</script>
+<!-- impeccable-live-start -->
+<script src="http://localhost:8401/live.js?token=4fa6ded7-7332-4de5-94ee-8a15176c392f"></script>
+<!-- impeccable-live-end -->
+</body>
+</html>
