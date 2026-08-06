@@ -1,73 +1,281 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Обучение — Meal Prep</title>
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-/* Специфичные стили для карточек статей */
+/* ==========================================================================
+   Премиальные стили для образовательного модуля
+   ========================================================================== */
+
+/* Герой страницы */
+.edu-hero {
+  background: linear-gradient(135deg, rgba(20, 108, 126, 0.08) 0%, rgba(242, 245, 244, 0.6) 100%);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 40px 36px;
+  margin-top: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  position: relative;
+  overflow: hidden;
+}
+.edu-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(20, 108, 126, 0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.edu-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--brine);
+  font-weight: 600;
+  background: rgba(20, 108, 126, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+.edu-hero h1 {
+  font-family: var(--disp);
+  font-size: clamp(26px, 4.5vw, 38px);
+  line-height: 1.15;
+  color: var(--steel);
+  margin: 0 0 12px;
+}
+.edu-hero p {
+  color: var(--slate);
+  font-size: 17px;
+  line-height: 1.5;
+  max-width: 680px;
+  margin: 0;
+}
+
+/* Панель фильтров и поиска */
+.edu-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.edu-search-wrap {
+  position: relative;
+  max-width: 100%;
+}
+.edu-search-input {
+  width: 100%;
+  padding: 14px 18px 14px 44px;
+  font-family: var(--body);
+  font-size: 15px;
+  color: var(--steel);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: none;
+  transition: all .2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.edu-search-input:focus {
+  border-color: var(--brine);
+  box-shadow: 0 0 0 3px rgba(20, 108, 126, 0.12);
+}
+.edu-search-icon {
+  position: absolute;
+  left: 16px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--slate);
+  font-size: 16px;
+  pointer-events: none;
+}
+.edu-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.edu-tag-btn {
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--steel);
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.edu-tag-btn:hover {
+  border-color: var(--brine);
+  color: var(--brine);
+  transform: translateY(-1px);
+}
+.edu-tag-btn.active {
+  background: rgba(20, 108, 126, 0.12);
+  color: var(--brine);
+  border-color: var(--brine);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(20, 108, 126, 0.08);
+}
+.edu-count-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--slate);
+  align-self: center;
+}
+
+/* Сетка карточек */
 .article-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 36px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
 }
 .article-card {
   border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--frost);
+  border-radius: 10px;
+  background: #fff;
   padding: 24px;
   cursor: pointer;
-  transition: all .2s ease;
+  transition: all .25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.article-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--brine);
+  opacity: 0;
+  transition: opacity .25s ease;
 }
 .article-card:hover {
-  background: #fff;
   border-color: var(--brine);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(20, 108, 126, 0.12);
+}
+.article-card:hover::before {
+  opacity: 1;
+}
+
+.article-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 8px;
 }
 .article-card-num {
-  font-family: var(--mono);
+  font-family: var(--body);
   font-size: 11px;
   color: var(--brine);
-  letter-spacing: .12em;
+  background: rgba(20, 108, 126, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: .08em;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
+  font-feature-settings: "zero" 0;
+}
+.article-card-category {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--slate);
+  font-weight: 500;
 }
 .article-card h2 {
   font-family: var(--disp);
-  font-size: 18px;
-  margin: 0;
+  font-size: 17px;
+  margin: 0 0 10px;
   line-height: 1.35;
   color: var(--steel);
+  transition: color .2s;
+}
+.article-card:hover h2 {
+  color: var(--brine);
+}
+.article-card-excerpt {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--slate);
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.article-card-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
 }
 .article-card-read {
-  margin-top: auto;
-  font-size: 13px;
-  color: var(--slate);
-  font-weight: 500;
+  color: var(--brine);
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.article-card:hover .article-card-read {
-  color: var(--brine);
+.article-card-read .arrow {
+  transition: transform .2s ease;
+  display: inline-block;
+}
+.article-card:hover .article-card-read .arrow {
+  transform: translateX(4px);
+}
+.article-card-time {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--slate);
 }
 
-/* Модальное окно для чтения статьи */
+/* Пустое состояние поиска */
+.edu-empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: #fff;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: var(--slate);
+}
+.edu-empty-state h3 {
+  font-family: var(--disp);
+  font-size: 18px;
+  color: var(--steel);
+  margin: 12px 0 6px;
+}
+
+/* Модальное окно чтения */
 .article-modal-backdrop {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 1000;
   display: none;
   opacity: 0;
@@ -81,13 +289,13 @@
 }
 .article-modal {
   background: #fff;
-  max-width: 720px;
+  max-width: 760px;
   margin: 20px auto;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid var(--line);
-  box-shadow: 0 20px 48px rgba(0,0,0,0.12);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.18);
   position: relative;
-  transform: translateY(16px);
+  transform: translateY(20px);
   transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 }
@@ -95,81 +303,133 @@
   transform: translateY(0);
 }
 .article-modal-header {
-  padding: 20px 28px;
+  padding: 18px 28px;
   border-bottom: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
-  background: #fff;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
   z-index: 2;
+}
+.article-modal-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .article-modal-close {
   background: var(--frost);
   border: 1px solid var(--line);
-  width: 34px; height: 34px;
+  width: 36px; height: 36px;
   border-radius: 50%;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; color: var(--slate);
-  transition: .15s;
+  transition: all .15s ease;
   line-height: 1;
 }
 .article-modal-close:hover {
-  background: var(--line); color: var(--steel);
+  background: var(--line);
+  color: var(--steel);
+  transform: rotate(90deg);
 }
 .article-body {
-  padding: 32px 36px 48px;
-  font-size: 16px;
-  line-height: 1.68;
+  padding: 36px 40px 48px;
+  font-size: 16.5px;
+  line-height: 1.7;
   color: var(--steel);
 }
 .article-body h1 {
   font-family: var(--disp);
-  font-size: 26px;
+  font-size: clamp(22px, 3.5vw, 28px);
   margin-top: 0;
   margin-bottom: 24px;
-  line-height: 1.25;
+  line-height: 1.3;
   color: var(--steel);
 }
 .article-body h2 {
   font-family: var(--disp);
   font-size: 20px;
-  margin-top: 36px;
-  margin-bottom: 14px;
+  margin-top: 40px;
+  margin-bottom: 16px;
   color: var(--steel);
   border-top: 1px solid var(--line);
   padding-top: 24px;
 }
 .article-body h3 {
-  font-size: 16px;
-  margin-top: 24px;
-  margin-bottom: 10px;
+  font-size: 17px;
+  margin-top: 26px;
+  margin-bottom: 12px;
   font-weight: 600;
   color: var(--steel);
 }
 .article-body p {
-  margin-bottom: 16px;
-}
-.article-body ul {
-  padding-left: 22px;
   margin-bottom: 18px;
 }
+.article-body ul {
+  padding-left: 24px;
+  margin-bottom: 22px;
+}
 .article-body li {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .article-body strong {
   font-weight: 600;
   color: var(--steel);
 }
 
+/* Навигация внизу статьи */
+.article-modal-nav {
+  padding: 20px 28px;
+  background: #FAFDFC;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.article-nav-btn {
+  font-family: var(--body);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--brine);
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 9px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.article-nav-btn:hover {
+  border-color: var(--brine);
+  background: var(--ing-bg);
+}
+.article-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--line);
+  background: #fff;
+  color: var(--slate);
+}
+
 @media (max-width: 640px) {
+  .edu-hero {
+    padding: 24px 20px;
+  }
   .article-body {
     padding: 24px 20px 36px;
   }
   .article-modal-header {
-    padding: 16px 20px;
+    padding: 14px 18px;
+  }
+  .edu-count-badge {
+    margin-left: 0;
+    width: 100%;
   }
 }
 </style>
@@ -177,7 +437,16 @@
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="mark" href="index.html">Заготовка <span>·</span> свой план</a>
+    <a class="mark" href="index.html" aria-label="свой план">
+      <svg class="mark-icon" width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="13" height="13" rx="4" fill="#146C7E"/>
+        <rect x="17" y="2" width="13" height="13" rx="4" fill="#7FA23C"/>
+        <rect x="2" y="17" width="13" height="13" rx="4" fill="#D9971F"/>
+        <rect x="17" y="17" width="13" height="13" rx="4" fill="#146C7E" fill-opacity="0.85"/>
+        <circle cx="23.5" cy="23.5" r="2.5" fill="#FFFFFF"/>
+      </svg>
+      <span>свой план</span>
+    </a>
     <nav class="nav">
       <a href="profile.html">Профиль</a>
       <a href="index.html">Рецепты</a>
@@ -188,26 +457,75 @@
   </div>
 </header>
 
-<main class="wrap" style="padding-top: 40px; padding-bottom: 80px;">
-  <h1>Образовательные статьи</h1>
-  <p class="lede" style="max-width:640px">Узнайте больше о принципах правильного питания, правилах составления тарелки и механизмах работы организма.</p>
+<main class="wrap" style="padding-bottom: 80px;">
+  <!-- Герой с частицами внутри карточки -->
+  <section class="hero-box" id="hero-box">
+    <div class="hero-eyebrow">БАЗА ЗНАНИЙ · НАУКА О ПИТАНИИ</div>
+    <h1>Образовательные статьи о <em>правильном питании</em></h1>
+    <p class="lede">Узнайте о принципах правильного питания, биохимии нутриентов и научных механизмах работы организма — простой язык, измеримые факты и ссылки на исследования.</p>
+  </section>
+
+  <!-- Панель управления -->
+  <section class="edu-controls">
+    <div class="edu-search-wrap">
+      <input type="text" id="edu-search" class="edu-search-input" style="padding-left:18px;" placeholder="Поиск по названию или теме статьи..." oninput="handleSearch()">
+    </div>
+    
+    <div class="edu-tags">
+      <button class="edu-tag-btn active" data-tag="all" onclick="filterByTag('all')">Все статьи</button>
+      <button class="edu-tag-btn" data-tag="Основы питания" onclick="filterByTag('Основы питания')">Основы питания</button>
+      <button class="edu-tag-btn" data-tag="Биохимия" onclick="filterByTag('Биохимия')">Биохимия</button>
+      <button class="edu-tag-btn" data-tag="Нутриенты" onclick="filterByTag('Нутриенты')">Нутриенты</button>
+      <button class="edu-tag-btn" data-tag="Режимы питания" onclick="filterByTag('Режимы питания')">Режимы питания</button>
+      <button class="edu-tag-btn" data-tag="Метаболизм" onclick="filterByTag('Метаболизм')">Метаболизм</button>
+      <button class="edu-tag-btn" data-tag="Исследования" onclick="filterByTag('Исследования')">Исследования</button>
+      <span class="edu-count-badge" id="edu-count">Загрузка...</span>
+    </div>
+  </section>
   
+  <!-- Сетка статей -->
   <div class="article-grid" id="articles-container"></div>
 </main>
 
-<!-- Modal Template -->
+<!-- Модальное окно чтения -->
 <div class="article-modal-backdrop" id="article-modal">
   <div class="article-modal">
     <div class="article-modal-header">
-      <div class="article-card-num" id="article-modal-num"></div>
+      <div class="article-modal-header-meta">
+        <span class="article-card-num" id="article-modal-num"></span>
+        <span class="article-card-category" id="article-modal-cat"></span>
+      </div>
       <button class="article-modal-close" onclick="closeArticleModal()" aria-label="Закрыть">×</button>
     </div>
     <div class="article-body" id="article-modal-body"></div>
+    <div class="article-modal-nav">
+      <button class="article-nav-btn" id="art-prev-btn" onclick="navArticle(-1)">← Предыдущий урок</button>
+      <button class="article-nav-btn" id="art-next-btn" onclick="navArticle(1)">Следующий урок →</button>
+    </div>
   </div>
 </div>
 
 <script src="data-articles.js"></script>
+<script src="particles.js"></script>
 <script>
+  // Метаданные по категориям, времени и выдержкам
+  var ARTICLE_META = {
+    'art-1': { cat: 'Основы питания', time: '5 мин', excerpt: 'Научная модель Гарвардской тарелки: как четверть белка, половина овощей и четверть крахмала дают чувство сытости и контроль веса без подсчёта калорий.' },
+    'art-2': { cat: 'Биохимия', time: '4 мин', excerpt: 'Клетчатка → белки и жиры → углеводы. Как изменение очерёдности приёма пищи снижает скачки сахара и инсулина в крови до 70%.' },
+    'art-3': { cat: 'Биохимия', time: '6 мин', excerpt: 'Процесс ретроградации: как охлаждение приготовленных круп и картофеля до 4 °C превращает часть крахмала в суперфуд для микробиоты.' },
+    'art-4': { cat: 'Нутриенты', time: '5 мин', excerpt: 'Зачем организму 30 г клетчатки в день, как растворимые и нерастворимые волокна влияют на холестерин, сытость и продолжительность жизни.' },
+    'art-5': { cat: 'Нутриенты', time: '4 мин', excerpt: 'Почему творог или греческий йогурт за 30 минут до сна предотвращают ночной катаболизм и подпитывают мышцы аминокислотами 7–8 часов.' },
+    'art-6': { cat: 'Режимы питания', time: '6 мин', excerpt: 'Хрононутрициология: почему утренний и дневной калорийный пик снижают весовой прирост, а поздний ужин блокирует выработку инсулина.' },
+    'art-7': { cat: 'Нутриенты', time: '5 мин', excerpt: 'Научные различия EPA и DHA: как омега-3 кислоты снижают системное воспаление, триглицериды и риск сердечно-сосудистых патологий.' },
+    'art-8': { cat: 'Метаболизм', time: '4 мин', excerpt: 'Нормы суточного потребления жидкости, влияние легкого обезвоживания на когнитивные функции и рецепторы голода.' },
+    'art-9': { cat: 'Биохимия', time: '6 мин', excerpt: 'Естественная структура продуктов против рафинирования: почему физическая матрица пищи важнее извлеченных изолированных нутриентов.' },
+    'art-10': { cat: 'Исследования', time: '7 мин', excerpt: 'Обзор масштабных рандомизированных исследований (PREDIMED, DIETFITS, DASH, DPP): какие принципы дают стойкий результат без срывов.' }
+  };
+
+  var currentTag = 'all';
+  var searchQuery = '';
+  var currentArticleId = null;
+
   function esc(s) {
     if (!s) return '';
     return String(s)
@@ -218,23 +536,87 @@
       .replace(/'/g, '&#39;');
   }
 
+  function filterByTag(tag) {
+    currentTag = tag;
+    Array.prototype.forEach.call(document.querySelectorAll('.edu-tag-btn'), function(btn) {
+      btn.classList.toggle('active', btn.dataset.tag === tag);
+    });
+    renderArticles();
+  }
+
+  function handleSearch() {
+    searchQuery = (document.getElementById('edu-search').value || '').trim().toLowerCase();
+    renderArticles();
+  }
+
   function renderArticles() {
     var container = document.getElementById('articles-container');
+    var countBadge = document.getElementById('edu-count');
     if (!container) return;
     
     if (typeof ARTICLES === 'undefined' || !ARTICLES || !ARTICLES.length) {
-      container.innerHTML = '<div class="empty" style="grid-column: 1 / -1; padding: 40px; text-align: center; border: 1px dashed var(--line); border-radius: 6px; color: var(--slate);">Статьи загружаются...</div>';
+      container.innerHTML = '<div class="edu-empty-state"><h3>Статьи загружаются...</h3></div>';
       return;
     }
     
-    container.innerHTML = ARTICLES.map(function(art, index) {
-      var num = String(index + 1).padStart(2, '0');
+    var filtered = ARTICLES.filter(function(art, index) {
+      var meta = ARTICLE_META[art.id] || { cat: 'Обучение', time: '5 мин', excerpt: '' };
+      
+      // Фильтр по тегу
+      if (currentTag !== 'all' && meta.cat !== currentTag) return false;
+      
+      // Фильтр по поисковому запросу
+      if (searchQuery) {
+        var matchTitle = art.title.toLowerCase().indexOf(searchQuery) !== -1;
+        var matchExcerpt = meta.excerpt.toLowerCase().indexOf(searchQuery) !== -1;
+        var matchCat = meta.cat.toLowerCase().indexOf(searchQuery) !== -1;
+        if (!matchTitle && !matchExcerpt && !matchCat) return false;
+      }
+      
+      return true;
+    });
+
+    if (countBadge) {
+      countBadge.textContent = 'Показано ' + filtered.length + ' из ' + ARTICLES.length + ' статей';
+    }
+
+    if (!filtered.length) {
+      container.innerHTML = '<div class="edu-empty-state">' +
+        '<h3>Ничего не найдено</h3>' +
+        '<p style="margin: 6px 0 16px;">Попробуйте изменить поисковый запрос или выбрать другую категорию.</p>' +
+        '<button class="edu-tag-btn active" onclick="resetFilters()">Сбросить фильтры</button>' +
+      '</div>';
+      return;
+    }
+    
+    container.innerHTML = filtered.map(function(art) {
+      var fullIndex = ARTICLES.indexOf(art);
+      var num = String(fullIndex + 1).padStart(2, '0');
+      var meta = ARTICLE_META[art.id] || { cat: 'Обучение', time: '5 мин', excerpt: '' };
+
       return '<div class="article-card" onclick="openArticleModal(\'' + art.id + '\')">' +
-               '<div class="article-card-num">Урок ' + num + '</div>' +
+               '<div class="article-card-meta">' +
+                 '<span class="article-card-num">Урок ' + num + '</span>' +
+                 '<span class="article-card-category">' + esc(meta.cat) + '</span>' +
+               '</div>' +
                '<h2>' + esc(art.title) + '</h2>' +
-               '<div class="article-card-read">Читать статью →</div>' +
+               '<div class="article-card-excerpt">' + esc(meta.excerpt) + '</div>' +
+               '<div class="article-card-footer">' +
+                 '<span class="article-card-read">Читать статью <span class="arrow">→</span></span>' +
+                 '<span class="article-card-time">⏱ ' + esc(meta.time) + '</span>' +
+               '</div>' +
              '</div>';
     }).join('');
+  }
+
+  function resetFilters() {
+    currentTag = 'all';
+    searchQuery = '';
+    document.getElementById('edu-search').value = '';
+    Array.prototype.forEach.call(document.querySelectorAll('.edu-tag-btn'), function(btn) {
+      btn.classList.toggle('active', btn.dataset.tag === 'all');
+    });
+    renderArticles();
   }
 
   function openArticleModal(id) {
@@ -242,14 +624,34 @@
     var art = ARTICLES.find(function(a) { return a.id === id; });
     if (!art) return;
     
+    currentArticleId = id;
     var index = ARTICLES.indexOf(art);
     var num = String(index + 1).padStart(2, '0');
+    var meta = ARTICLE_META[art.id] || { cat: 'Обучение', time: '5 мин' };
     
     document.getElementById('article-modal-num').textContent = 'Урок ' + num;
+    document.getElementById('article-modal-cat').textContent = meta.cat + ' · ⏱ ' + meta.time;
     document.getElementById('article-modal-body').innerHTML = '<h1>' + esc(art.title) + '</h1>' + art.html;
     
+    // Кнопки навигации по урокам
+    var prevBtn = document.getElementById('art-prev-btn');
+    var nextBtn = document.getElementById('art-next-btn');
+    if (prevBtn) prevBtn.disabled = (index === 0);
+    if (nextBtn) nextBtn.disabled = (index === ARTICLES.length - 1);
+
     document.getElementById('article-modal').classList.add('show');
     document.body.style.overflow = 'hidden';
+  }
+
+  function navArticle(dir) {
+    if (!currentArticleId || typeof ARTICLES === 'undefined') return;
+    var index = ARTICLES.findIndex(function(a) { return a.id === currentArticleId; });
+    if (index === -1) return;
+    var targetIndex = index + dir;
+    if (targetIndex >= 0 && targetIndex < ARTICLES.length) {
+      openArticleModal(ARTICLES[targetIndex].id);
+      document.querySelector('.article-modal-backdrop').scrollTop = 0;
+    }
   }
 
   function closeArticleModal() {
@@ -265,13 +667,23 @@
 
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeArticleModal();
+    if (e.key === 'ArrowLeft' && document.getElementById('article-modal').classList.contains('show')) navArticle(-1);
+    if (e.key === 'ArrowRight' && document.getElementById('article-modal').classList.contains('show')) navArticle(1);
   });
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderArticles);
-  } else {
+  function startPage() {
     renderArticles();
+    if (typeof initParticles === 'function') {
+      initParticles('edu-hero', { color: '#146C7E', quantity: 50, size: 1.3 });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startPage);
+  } else {
+    startPage();
   }
 </script>
 </body>
 </html>
+

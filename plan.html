@@ -1,48 +1,201 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Конструктор — четыре приёма пищи на 5 дней</title>
 <meta name="description" content="Соберите пять дней из завтраков, обедов, ужинов и приёмов перед сном. Список покупок формируется автоматически и делится на заходы: комплект из четырёх блюд за один раз.">
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-/* ---- сетка конструктора ---- */
-.grid{display:grid; gap:14px}
-@media(min-width:900px){.grid{grid-template-columns:repeat(5,1fr); gap:12px}}
-.col{border:1px solid var(--line); border-radius:4px; background:var(--frost); overflow:hidden}
-.col-h{display:flex; justify-content:space-between; align-items:baseline; gap:10px;
-  padding:12px 14px; border-bottom:1px solid var(--line); background:#EFF4F5}
-.col-h b{font-family:var(--disp); font-size:14px; letter-spacing:-.02em}
-.col-h em{font-style:normal; font-family:var(--mono); font-size:11px; color:var(--slate)}
-.slot{padding:11px 14px; border-bottom:1px dotted var(--line)}
-.slot:last-of-type{border-bottom:0}
-.slot label{display:block; font-family:var(--mono); font-size:10.5px;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--slate); margin-bottom:6px}
-.slot select{width:100%; font-family:var(--body); font-size:14px; color:var(--steel);
-  padding:8px 9px; border:1px solid var(--line); border-radius:3px;
-  background:#fff; cursor:pointer}
-.slot select:hover{border-color:var(--brine)}
-.slot.b label{color:var(--badge-b)}
-.slot.l label{color:var(--badge-l)}
-.slot.d label{color:var(--badge-d)}
-.slot.n label{color:var(--badge-n)}
-.col-f{padding:10px 14px; border-top:1px solid var(--line);
-  font-family:var(--mono); font-size:11.5px; color:var(--slate); background:var(--ing-bg)}
-.col-f b{color:var(--steel); font-weight:500}
-.col-f i{display:block; font-style:normal; margin-top:3px}
-.warn{color:#A8471C}
+/* ---- единый блок конструктора без двойных рамок ---- */
+.grid {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+@media(min-width:900px){
+  .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+}
 
-/* ---- добор до нормы ---- */
-.adds{padding:9px 14px; background:#F7FAFA}
-.adds em{display:block; font-style:normal; font-family:var(--mono); font-size:10px;
-  letter-spacing:.09em; text-transform:uppercase; color:var(--slate); margin-bottom:5px}
-.adds u{display:block; text-decoration:none; font-size:13px; line-height:1.45}
-.adds u span{font-family:var(--mono); font-size:11px; color:var(--slate)}
-.adds .none{font-size:13px; color:var(--badge-d)}
+.col {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--frost);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+}
+
+.col-h {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--ing-bg);
+}
+.col-h b {
+  font-family: var(--disp);
+  font-size: 14px;
+  color: var(--steel);
+  letter-spacing: -.02em;
+}
+.col-h em {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--brine);
+  font-weight: 600;
+}
+
+/* Стыковка слотов без двойных границ и без угловых зазоров */
+.slot {
+  padding: 14px 16px;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0 !important;
+  background: transparent;
+  box-sizing: border-box;
+}
+.slot:last-of-type {
+  border-bottom: 0;
+}
+.slot label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--slate);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.slot select {
+  width: 100%;
+  height: 38px;
+  font-family: var(--body);
+  font-size: 13.5px;
+  color: var(--steel);
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #FFFFFF;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color .15s;
+}
+.slot select:hover, .slot select:focus {
+  border-color: var(--brine);
+  outline: none;
+}
+.slot.b label { color: var(--badge-b); }
+.slot.l label { color: var(--badge-l); }
+.slot.d label { color: var(--badge-d); }
+.slot.n label { color: var(--badge-n); }
+
+/* Добрать до нормы */
+.adds {
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--frost);
+}
+.adds em {
+  display: block;
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--slate);
+  margin-bottom: 6px;
+}
+.adds u {
+  display: block;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--steel);
+}
+.adds u span {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--slate);
+}
+.adds .none {
+  font-size: 13px;
+  color: var(--badge-l);
+  margin: 0;
+}
+
+.col-f {
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--slate);
+  background: var(--ing-bg);
+}
+.col-f b {
+  color: var(--steel);
+  font-weight: 600;
+}
+.col-f i {
+  display: block;
+  font-style: normal;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+/* 4 слота в режиме Единый рацион — бесшовная стыковка без дыр */
+.repeat-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  background: var(--frost);
+}
+.repeat-slots-grid .slot {
+  border: 0 !important;
+  border-right: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent;
+  padding: 16px;
+}
+.repeat-slots-grid .slot:last-child {
+  border-right: 0 !important;
+}
+@media (max-width: 900px) {
+  .repeat-slots-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .repeat-slots-grid .slot:nth-child(1),
+  .repeat-slots-grid .slot:nth-child(2) {
+    border-bottom: 1px solid var(--line) !important;
+  }
+  .repeat-slots-grid .slot:nth-child(2) {
+    border-right: 0 !important;
+  }
+}
+@media (max-width: 540px) {
+  .repeat-slots-grid {
+    grid-template-columns: 1fr;
+  }
+  .repeat-slots-grid .slot {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line) !important;
+  }
+  .repeat-slots-grid .slot:last-child {
+    border-bottom: 0 !important;
+  }
+}
 
 /* ---- итог недели ---- */
 .tot{display:grid; gap:1px; margin-top:22px; background:var(--line);
@@ -77,10 +230,48 @@
   gap:20px;
   margin-bottom:20px;
 }
-.run-dish{display:flex; gap:8px; flex-wrap:wrap; padding:14px 22px;
-  border-bottom:1px dotted var(--line); font-size:14.5px; align-items:center}
-.chip{font-family:var(--mono); font-size:11.5px; padding:4px 9px; border-radius:3px;
-  background:#E4EDEF; color:var(--brine); white-space:nowrap}
+.run-dish {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14.5px;
+}
+.run-dish:last-child {
+  border-bottom: 0;
+}
+.run-dish-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.run-dish-title a {
+  color: var(--steel);
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color .15s;
+}
+.run-dish-title a:hover {
+  color: var(--brine);
+}
+.run-dish-qty {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--ing-bg);
+  color: var(--brine);
+  font-weight: 600;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+}
 .run-aisles{display:grid; gap:26px; padding:22px}
 @media(min-width:700px){.run-aisles{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:1000px){.run-aisles{grid-template-columns:repeat(3,1fr)}}
@@ -93,7 +284,16 @@
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="mark" href="index.html">Заготовка <span>·</span> свой план</a>
+    <a class="mark" href="index.html" aria-label="свой план">
+      <svg class="mark-icon" width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="13" height="13" rx="4" fill="#146C7E"/>
+        <rect x="17" y="2" width="13" height="13" rx="4" fill="#7FA23C"/>
+        <rect x="2" y="17" width="13" height="13" rx="4" fill="#D9971F"/>
+        <rect x="17" y="17" width="13" height="13" rx="4" fill="#146C7E" fill-opacity="0.85"/>
+        <circle cx="23.5" cy="23.5" r="2.5" fill="#FFFFFF"/>
+      </svg>
+      <span>свой план</span>
+    </a>
     <nav class="nav">
       <a href="profile.html">Профиль</a>
       <a href="index.html">Рецепты</a>
@@ -104,14 +304,13 @@
   </div>
 </header>
 
-<main>
-<section class="hero wrap">
-  <h1>Соберите свой план —<br>закупка <em>соберётся</em><br>сама.</h1>
-  <p class="lede">Выберите завтрак, обед, ужин и приём перед сном на каждый день.
-    Ниже пересчитаются БЖУ с клетчаткой и появится список покупок.</p>
-</section>
+<main class="wrap" style="padding-bottom: 80px;">
+  <section class="hero-box" id="hero-box">
+    <div class="hero-eyebrow">КОНСТРУКТОР РАЦИОНА · АВТО-ЗАКУПКА</div>
+    <h1>Соберите свой план — закупка <em>соберётся</em> сама</h1>
+    <p class="lede">Выберите завтрак, обед, ужин и приём перед сном на каждый день. Ниже пересчитаются БЖУ с клетчаткой и появится автоматический список покупок.</p>
+  </section>
 
-<section class="sec wrap">
   <div class="plan-deploy-panel noprint">
     <div class="deploy-group">
       <span class="lbl">Режим заполнения:</span>
@@ -151,10 +350,8 @@
   <p class="tot-note">Средние значения посчитаны вместе с добором, который предложен
     под каждым днём: заготовка сознательно не закрывает норму целиком. В скобках
     под каждым числом — сколько даёт одна заготовка, без добора.</p>
-</section>
 
-<section class="sec wrap" id="shopping">
-  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px" class="noprint">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:40px; margin-bottom:16px" class="noprint" id="shopping">
     <h2 class="sec-h" style="margin:0">Список покупок</h2>
     <div style="display:flex; gap:8px; flex-wrap:wrap">
       <button class="btn" id="btn-export-pdf" onclick="exportShoppingPDF()">Экспорт в PDF</button>
@@ -162,7 +359,6 @@
     </div>
   </div>
   <div id="runs"></div>
-</section>
 </main>
 
 <footer class="foot wrap">
@@ -270,13 +466,13 @@ function drawGrid() {
 
   if (rationMode === 'repeat') {
     syncRepeatRation();
-    // В режиме «Единый рацион» отображаем ровно 1 колонку для настройки всей программы
-    gridEl.style.gridTemplateColumns = 'minmax(280px, 460px)';
+    gridEl.style.gridTemplateColumns = '1fr';
 
     var colHeader = 'Единая программа (на ' + planDaysCount + ' ' + plural(planDaysCount, 'день') + ')';
 
     gridEl.innerHTML = '<div class="col">' +
       '<div class="col-h"><b>' + esc(colHeader) + '</b><em id="kc0"></em></div>' +
+      '<div class="repeat-slots-grid">' +
       MEALS.map(function (m) {
         return '<div class="slot ' + m.key + '">' +
           '<label for="s-' + m.key + '0">' + m.name + '</label>' +
@@ -288,12 +484,13 @@ function drawGrid() {
             }).join('') +
           '</select></div>';
       }).join('') +
+      '</div>' +
       '<div class="adds" id="a0"></div>' +
       '<div class="col-f" id="f0"></div>' +
     '</div>';
   } else {
     // В режиме «Разное меню» отображаем planDaysCount колонок
-    gridEl.style.gridTemplateColumns = 'repeat(' + planDaysCount + ', minmax(170px, 1fr))';
+    gridEl.style.gridTemplateColumns = 'repeat(' + planDaysCount + ', minmax(0, 1fr))';
 
     var daysArr = [];
     for (var i = 0; i < planDaysCount; i++) {
@@ -436,11 +633,13 @@ function drawRuns() {
     return '<article class="run">' +
       '<div class="run-h"><b>' + titleText + '</b></div>' +
       r.items.map(function (e) {
-        var need = e.portions + ' ' + plural(e.portions, 'порция');
+        var need = e.portions + ' ' + plural(e.portions, 'порция', 'порции', 'порций');
         return '<div class="run-dish">' +
-          '<span class="badge ' + e.dish.meal + '">' + mealName(e.dish.meal) + '</span>' +
-          '<a href="index.html#' + e.dish.id + '" style="color:inherit">' + esc(e.dish.short) + '</a>' +
-          '<span class="chip">' + need + '</span>' +
+          '<div class="run-dish-title">' +
+            '<span class="badge ' + e.dish.meal + '">' + mealName(e.dish.meal) + '</span>' +
+            '<a href="index.html#' + e.dish.id + '">' + esc(e.dish.short) + '</a>' +
+          '</div>' +
+          '<span class="run-dish-qty">' + need + '</span>' +
         '</div>';
       }).join('') +
       '<div class="run-aisles">' + r.aisles.map(function (a) {
@@ -748,8 +947,15 @@ drawGrid();
 refresh();
 populateSavedPlansDropdownInConstructor();
 </script>
+<script src="particles.js"></script>
+<script>
+  if (typeof initParticles === 'function') {
+    initParticles('hero-box', { color: '#146C7E', quantity: 50, size: 1.3 });
+  }
+</script>
 <!-- impeccable-live-start -->
 <script src="http://localhost:8401/live.js?token=4fa6ded7-7332-4de5-94ee-8a15176c392f"></script>
 <!-- impeccable-live-end -->
 </body>
 </html>
+

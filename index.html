@@ -1,22 +1,44 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Рецепты — завтраки, обеды, ужины и приёмы перед сном</title>
 <meta name="description" content="75 рецептов с разметкой по приёмам пищи: завтраки, обеды, лёгкие ужины и казеиновые приёмы перед сном. БЖУ и клетчатка на порцию, пошаговое приготовление, сроки хранения.">
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-/* ---- базовый чип (переопределяет style.css для этой страницы) ---- */
-.chip{font-family:var(--mono); font-size:12px; padding:6px 11px; border-radius:3px;
-  border:1px solid var(--line); background:var(--frost); color:var(--slate);
-  cursor:pointer; transition:.15s; white-space:nowrap}
-.chip:hover{border-color:var(--brine); color:var(--brine)}
-.chip[aria-pressed="true"]{background:var(--brine); border-color:var(--brine);
-  color:#fff; font-weight:600}
+/* ---- базовый чип ---- */
+.chip {
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 14px;
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #FFFFFF;
+  color: var(--steel);
+  cursor: pointer;
+  transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+.chip:hover {
+  border-color: var(--brine);
+  color: var(--brine);
+  transform: translateY(-1px);
+}
+.chip[aria-pressed="true"] {
+  background: rgba(20, 108, 126, 0.12);
+  border-color: var(--brine);
+  color: var(--brine);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(20, 108, 126, 0.08);
+}
 
 /* ---- единый блок фильтра ---- */
 .filter-box{
@@ -58,25 +80,30 @@
   gap:4px;
   flex-shrink:0;
 }
-.view-btn{
-  font-family:var(--mono);
-  font-size:11px;
-  letter-spacing:.06em;
-  padding:5px 10px;
-  border-radius:3px;
-  border:1px solid var(--line);
-  background:var(--ice);
-  color:var(--slate);
-  cursor:pointer;
-  transition:.15s;
-  white-space:nowrap;
+.view-btn {
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #FFFFFF;
+  color: var(--steel);
+  cursor: pointer;
+  transition: all .18s ease;
+  white-space: nowrap;
 }
-.view-btn:hover{border-color:var(--brine); color:var(--brine)}
-.view-btn[aria-pressed="true"]{
-  background:var(--ing-bg);
-  border-color:var(--brine);
-  color:var(--brine);
-  font-weight:600;
+.view-btn:hover {
+  border-color: var(--brine);
+  color: var(--brine);
+  transform: translateY(-1px);
+}
+.view-btn[aria-pressed="true"] {
+  background: rgba(20, 108, 126, 0.12);
+  border-color: var(--brine);
+  color: var(--brine);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(20, 108, 126, 0.08);
 }
 
 /* строка счётчика */
@@ -127,7 +154,16 @@
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="mark" href="index.html">Заготовка <span>·</span> свой план</a>
+    <a class="mark" href="index.html" aria-label="свой план">
+      <svg class="mark-icon" width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="13" height="13" rx="4" fill="#146C7E"/>
+        <rect x="17" y="2" width="13" height="13" rx="4" fill="#7FA23C"/>
+        <rect x="2" y="17" width="13" height="13" rx="4" fill="#D9971F"/>
+        <rect x="17" y="17" width="13" height="13" rx="4" fill="#146C7E" fill-opacity="0.85"/>
+        <circle cx="23.5" cy="23.5" r="2.5" fill="#FFFFFF"/>
+      </svg>
+      <span>свой план</span>
+    </a>
     <nav class="nav">
       <a href="profile.html">Профиль</a>
       <a href="index.html" aria-current="page">Рецепты</a>
@@ -138,7 +174,6 @@
   </div>
 </header>
 
-<main>
 <!-- Левое плавающее меню собираемого плана -->
 <aside class="plan-sidebar" id="plan-sidebar" aria-label="Ваш собираемый рацион">
   <div class="plan-sidebar-header">
@@ -159,11 +194,12 @@
   </div>
 </aside>
 
-<section class="hero wrap">
-  <h1>Семьдесят пять блюд<br>для <em>своего плана</em><br>питания.</h1>
-  <p class="lede">Завтраки, обеды, лёгкие ужины и приёмы перед сном — с БЖУ и клетчаткой
-    на порцию, пошаговым приготовлением и сроком хранения. Собрать из них неделю
-    можно в <a href="plan.html">конструкторе</a>.</p>
+<main class="wrap" style="padding-bottom: 80px;">
+  <section class="hero-box" id="hero-box">
+    <div class="hero-eyebrow">БАЗА РЕЦЕПТОВ · 75 БЛЮД С БЖУ</div>
+    <h1>Семьдесят пять блюд для <em>своего плана</em> питания</h1>
+    <p class="lede">Завтраки, обеды, лёгкие ужины и приёмы перед сном — с БЖУ и клетчаткой на порцию, пошаговым приготовлением и сроком хранения. Собрать из них неделю можно в <a href="plan.html" style="color:var(--brine); font-weight:500;">конструкторе</a>.</p>
+  </section>
 
   <details class="rules-spoiler" id="rules-details">
     <summary class="rules-summary">
@@ -191,7 +227,7 @@
     </div>
   </details>
 
-  <div class="filter-box">
+  <div class="filter-box" style="margin-top:20px;">
     <div class="search-wrap">
       <input type="search" id="f-search" class="search-input" placeholder="Поиск по названию или ингредиентам…" aria-label="Поиск по блюдам">
       <kbd class="search-kbd">/</kbd>
@@ -213,7 +249,6 @@
   </div>
 
   <div class="jump" id="jump"></div>
-</section>
 
 <div id="groups"></div>
 
@@ -579,7 +614,7 @@ function renderMealGroups() {
 
   document.getElementById('groups').innerHTML = MEALS.map(function (m) {
     var list = dishesFor(m.key);
-    return '<section class="group wrap" id="g-' + m.key + '">' +
+    return '<section class="group" id="g-' + m.key + '">' +
       '<div class="group-h"><h2>' + esc(m.name) + '</h2>' +
         '<span class="badge ' + m.key + '">' + list.length + ' ' +
           plural(list.length, 'блюдо') + '</span>' +
@@ -614,7 +649,7 @@ function renderMatrixGroups() {
 
   document.getElementById('groups').innerHTML = MATRIX_BASES.map(function (b) {
     var list = grouped[b.key] || [];
-    return '<section class="group wrap" id="g-' + b.key + '">' +
+    return '<section class="group" id="g-' + b.key + '">' +
       '<div class="group-h"><h2>' + esc(b.name) + '</h2>' +
         '<span class="badge matrix-badge">' + list.length + ' ' +
           plural(list.length, 'заготовка') + '</span>' +
@@ -1091,6 +1126,12 @@ renderAllGroups();
 apply();
 updateAllCardAddButtons();
 updatePlanSidebar();
+</script>
+<script src="particles.js"></script>
+<script>
+  if (typeof initParticles === 'function') {
+    initParticles('hero-box', { color: '#146C7E', quantity: 50, size: 1.3 });
+  }
 </script>
 <!-- impeccable-live-start -->
 <script src="http://localhost:8401/live.js?token=4fa6ded7-7332-4de5-94ee-8a15176c392f"></script>

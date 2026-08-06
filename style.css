@@ -14,7 +14,7 @@
   --badge-l:#16A34A;
   --badge-d:#E07A5F;
   --badge-n:#8B5CF6;
-  --wrap:1100px;
+  --wrap:1080px;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
   --disp:'Unbounded','Golos Text',system-ui,sans-serif;
   --body:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -22,14 +22,21 @@
 
 *{box-sizing:border-box}
 [hidden]{display:none !important}
-html{-webkit-text-size-adjust:100%}
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+}
 body{
   margin:0; background:var(--ice); color:var(--steel);
   font-family:var(--body); font-size:17px; line-height:1.55;
   -webkit-font-smoothing:antialiased;
+  font-feature-settings: "zero" 0;
+  font-variant-numeric: normal;
   transition:background-color .25s ease, color .25s ease;
 }
-.wrap{max-width:var(--wrap); margin:0 auto; padding:0 24px}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px; width:100%; box-sizing:border-box;}
 h1,h2,h3{margin:0; font-weight:700}
 ul{margin:0; padding:0; list-style:none}
 :focus-visible{outline:2px solid var(--brine); outline-offset:3px}
@@ -38,24 +45,99 @@ ul{margin:0; padding:0; list-style:none}
 .top{position:sticky; top:0; z-index:100; border-bottom:1px solid var(--line); background:var(--ice); transition:background-color .25s, border-color .25s}
 .top .wrap{display:flex; justify-content:space-between; align-items:center;
   gap:10px 20px; padding-top:16px; padding-bottom:16px; flex-wrap:wrap}
-.mark{font-family:var(--disp); font-weight:700; font-size:15px;
-  letter-spacing:-.01em; text-decoration:none; color:var(--steel)}
-.mark span{color:var(--brine)}
+.mark{font-family:var(--disp); font-weight:700; font-size:17px;
+  letter-spacing:-.01em; text-decoration:none; color:var(--steel);
+  display:inline-flex; align-items:center; gap:10px}
+.mark span{color:var(--steel)}
+.mark-icon{width:26px; height:26px; flex-shrink:0; transition:transform .2s ease}
+.mark:hover .mark-icon{transform:scale(1.06)}
 .nav{display:flex; gap:6px; flex-wrap:wrap; align-items:center}
-.nav a{font-family:var(--mono); font-size:12px; letter-spacing:.1em;
-  text-transform:uppercase; color:var(--slate); text-decoration:none;
-  padding:7px 13px; border-radius:3px; border:1px solid transparent; transition:.15s}
-.nav a:hover{color:var(--brine); border-color:var(--line)}
-.nav a[aria-current]{color:#fff; background:var(--brine); border-color:var(--brine); font-weight:600}
+.nav a{
+  font-family:var(--body);
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:0;
+  text-transform:none;
+  color:var(--slate);
+  text-decoration:none;
+  padding:7px 14px;
+  border-radius:6px;
+  border:1px solid transparent;
+  transition:all .18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav a:hover{
+  color:var(--brine);
+  background:var(--frost);
+  border-color:var(--line);
+}
+.nav a[aria-current]{
+  color:var(--brine);
+  background:rgba(20, 108, 126, 0.1);
+  border-color:rgba(20, 108, 126, 0.2);
+  font-weight:600;
+}
 
 /* ---- герой ---- */
-.hero{padding:64px 0 56px}
-.eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.16em;
-  text-transform:uppercase; color:var(--brine); margin:0 0 22px}
-.hero h1{font-family:var(--disp); font-size:clamp(32px,6vw,62px);
-  line-height:1.04; letter-spacing:-.03em; max-width:16ch}
-.hero h1 em{font-style:normal; color:var(--brine)}
-.lede{margin:24px 0 0; max-width:48ch; color:var(--slate); font-size:18px}
+.hero{padding:32px 0 24px}
+.hero-box {
+  min-height: 210px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--frost);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 32px 36px;
+  margin-top: 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  position: relative;
+  overflow: hidden;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--brine);
+  font-weight: 600;
+  background: rgba(20, 108, 126, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+.hero-box h1, .hero h1 {
+  font-family: var(--disp);
+  font-size: clamp(24px, 3.2vw, 32px);
+  line-height: 1.25;
+  color: var(--steel);
+  margin: 0 0 10px;
+  max-width: 820px;
+}
+.hero-box h1 em, .hero h1 em {
+  font-style: normal;
+  color: var(--brine);
+}
+.hero-box p, .hero-box .lede, .hero .lede {
+  color: var(--slate);
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 780px;
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .hero-box {
+    min-height: auto;
+    padding: 24px 20px;
+    margin-top: 16px;
+    margin-bottom: 20px;
+  }
+}
 
 /* ---- правила-спойлер ---- */
 .rules-spoiler{margin-top:14px}
@@ -219,43 +301,159 @@ ul{margin:0; padding:0; list-style:none}
 .qty{margin-left:auto; font-family:var(--mono); font-size:13px;
   color:var(--slate); white-space:nowrap; text-decoration:none}
 
-/* ---- кнопки ---- */
-.btn{font-family:var(--mono); font-size:12px; letter-spacing:.08em;
-  text-transform:uppercase; padding:10px 16px; border-radius:3px;
-  border:1px solid var(--line); background:var(--frost); color:var(--steel);
-  cursor:pointer; text-decoration:none; display:inline-block; transition:.15s}
-.btn:hover{border-color:var(--brine); color:var(--brine)}
-.btn-solid{background:var(--brine); border-color:var(--brine); color:#fff; font-weight:600}
+/* ---- кнопки и элементы управления ---- */
+.btn {
+  height: 38px;
+  box-sizing: border-box;
+  font-family: var(--body);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 0 18px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #FFFFFF;
+  color: var(--steel);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
+  vertical-align: middle;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.btn:hover {
+  border-color: var(--brine);
+  color: var(--brine);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(20, 108, 126, 0.12);
+}
+.btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.btn-solid {
+  background: var(--brine);
+  border-color: var(--brine);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+.btn-solid:hover {
+  background: var(--brine-dark);
+  border-color: var(--brine-dark);
+  color: #FFFFFF;
+}
+.btn-in-plan {
+  background: var(--dill);
+  border-color: var(--dill);
+  color: #FFFFFF;
+  font-weight: 600;
+}
 
-.btn-solid:hover{background:var(--brine-dark); border-color:var(--brine-dark)}
-
-.btn-in-plan{background:var(--dill); border-color:var(--dill); color:#fff; font-weight:600}
-
-
-/* ---- подвал ---- */
-.foot{border-top:1px solid var(--line); padding:28px 0 max(48px, env(safe-area-inset-bottom));
-  font-family:var(--mono); font-size:12px; color:var(--slate);
-  display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap}
-.foot a{color:var(--brine)}
+/* ---- универсальные выпадающие списки (select) ---- */
+select.saved-plans-select, select.cal-saved-plans-select, .cal-ctl select, .plan-deploy-panel select {
+  height: 38px;
+  box-sizing: border-box;
+  font-family: var(--body);
+  font-size: 13.5px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: var(--steel);
+  outline: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  transition: border-color .15s, box-shadow .15s;
+}
+select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl select:focus, .plan-deploy-panel select:focus {
+  border-color: var(--brine);
+  box-shadow: 0 0 0 3px rgba(20, 108, 126, 0.12);
+}
 
 /* ---- панель выбора длины и режима рациона ---- */
-.plan-deploy-panel{border:1px solid var(--line); border-radius:4px; background:var(--frost);
-  padding:16px 20px; margin-bottom:20px; display:flex; flex-wrap:wrap; gap:16px 30px; align-items:center}
-.deploy-group{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-.days-chips, .mode-chips{display:flex; gap:6px; flex-wrap:wrap}
+.plan-deploy-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--frost);
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  align-items: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+}
+.deploy-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.days-chips, .mode-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* ---- чипы и фильтры ---- */
-.chip{font-family:var(--mono); font-size:12px; letter-spacing:.04em;
-  padding:7px 13px; border-radius:3px; border:1px solid var(--line);
-  background:var(--frost); color:var(--steel); cursor:pointer; transition:.12s;
-  display:inline-flex; align-items:center; gap:6px}
-.chip:hover{border-color:var(--brine); color:var(--brine)}
-.chip[aria-pressed="true"]{background:var(--brine); border-color:var(--brine); color:#fff; font-weight:600}
+.chip {
+  height: 38px;
+  box-sizing: border-box;
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  padding: 0 16px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #FFFFFF;
+  color: var(--steel);
+  cursor: pointer;
+  transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  vertical-align: middle;
+}
+.chip:hover {
+  border-color: var(--brine);
+  color: var(--brine);
+  transform: translateY(-1px);
+}
+.chip[aria-pressed="true"] {
+  background: rgba(20, 108, 126, 0.12);
+  border-color: var(--brine);
+  color: var(--brine);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(20, 108, 126, 0.08);
+}
+
+/* ---- иконки для листания месяцев ---- */
+.cal-ctl #prev, .cal-ctl #next {
+  width:38px;
+  padding:0;
+}
 
 
 /* ---- сетка в конструкторе и календаре ---- */
-.slot{border:1px solid var(--line); border-radius:4px; background:var(--frost); padding:14px}
-.slot select{background:var(--ing-bg); color:var(--steel); border:1px solid var(--line); border-radius:3px}
+.slot {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 14px 16px;
+  box-sizing: border-box;
+}
+.slot select {
+  width: 100%;
+  height: 38px;
+  background: #FFFFFF;
+  color: var(--steel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 12px;
+  font-family: var(--body);
+  font-size: 13.5px;
+  box-sizing: border-box;
+}
 
 /* ---- адаптация для сенсорных экранов (touch targets) ---- */
 @media (pointer: coarse), (max-width: 768px){
@@ -461,12 +659,12 @@ ul{margin:0; padding:0; list-style:none}
   transition: transform .25s ease, opacity .25s ease, max-height .25s ease;
 }
 
-/* На экранах от 1640px панель фиксируется СЛЕВА ВНЕ основного контейнера .wrap (1100px) */
+/* На экранах от 1640px панель фиксируется СЛЕВА ВНЕ основного контейнера .wrap (1080px) */
 @media (min-width: 1640px) {
   .plan-sidebar {
     top: 90px;
     bottom: auto;
-    left: calc((100vw - 1100px) / 2 - 275px);
+    left: calc((100vw - 1080px) / 2 - 275px);
     width: 250px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
   }
@@ -540,10 +738,10 @@ ul{margin:0; padding:0; list-style:none}
 }
 
 .plan-sidebar-count.complete {
-  background: var(--brine);
-  color: #ffffff;
-  border-color: var(--brine);
-  animation: completePulse 2.5s infinite ease-in-out;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-weight: 700;
 }
 
 .plan-sidebar-toggle-btn {
@@ -692,15 +890,15 @@ ul{margin:0; padding:0; list-style:none}
 .plan-sidebar-rand-btn {
   background: var(--ice);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--brine);
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 6px 8px;
+  font-family: var(--body);
+  font-size: 13px;
+  padding: 8px;
   cursor: pointer;
   text-align: center;
   font-weight: 500;
-  transition: all .15s ease;
+  transition: all .18s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -734,5 +932,22 @@ ul{margin:0; padding:0; list-style:none}
 
 .plan-sidebar-go-btn:hover {
   background: var(--brine-dark);
+}
+
+/* ---- сетка приёмов для режима Единый рацион ---- */
+.repeat-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 900px) {
+  .repeat-slots-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 540px) {
+  .repeat-slots-grid {
+    grid-template-columns: 1fr;
+  }
 }
 

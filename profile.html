@@ -1,11 +1,13 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Профиль — управление планами питания и норма ккал</title>
 <meta name="description" content="Личный кабинет: сохраняйте ваши готовые рационы, переключайтесь между планами, создавайте новые меню и настраивайте персональную норму калорий.">
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -44,35 +46,164 @@
 .active-dot-pulse{width:6px; height:6px; background:#34D399; border-radius:50%; box-shadow:0 0 0 2px rgba(52,211,153,0.3); animation:pulseDot 1.8s infinite}
 @keyframes pulseDot{0%{transform:scale(0.95); box-shadow:0 0 0 0 rgba(52,211,153,0.7)} 70%{transform:scale(1.05); box-shadow:0 0 0 5px rgba(52,211,153,0)} 100%{transform:scale(0.95); box-shadow:0 0 0 0 rgba(52,211,153,0)}}
 
-.plan-card-metrics-box{background:#F4F7F6; border:1px solid var(--line, #DDE4E4); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:8px}
-.plan-card-cal-row{display:flex; justify-content:space-between; align-items:baseline}
-.plan-card-cal-row span{font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--slate, #586E78); letter-spacing:.06em}
-.plan-card-cal-row b{font-family:var(--disp); font-size:20px; color:var(--steel, #16242B); font-weight:700}
+.plan-card-metrics-box {
+  background: var(--ing-bg);
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.plan-card-cal-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+}
+.plan-card-cal-row span {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--slate);
+  white-space: nowrap;
+}
+.plan-card-cal-row b {
+  font-family: var(--disp);
+  font-size: 15px;
+  color: var(--steel);
+  font-weight: 700;
+  white-space: nowrap;
+}
 
-.plan-card-macros-chips{display:flex; gap:8px; border-top:1px solid rgba(0,0,0,0.06); padding-top:8px}
-.macro-mini-chip{flex:1; background:#FFFFFF; border:1px solid var(--line, #DDE4E4); border-radius:6px; padding:6px 8px; text-align:center; font-size:12px; color:var(--steel, #16242B)}
-.macro-mini-chip b{font-family:var(--disp); font-weight:700}
-.macro-mini-chip.p b{color:var(--brine, #146C7E)}
-.macro-mini-chip.f b{color:#D97706}
-.macro-mini-chip.c b{color:#059669}
+.plan-card-macros-chips {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-family: var(--body);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.macro-mini-chip {
+  color: var(--steel);
+  white-space: nowrap;
+}
+.macro-mini-chip b {
+  font-family: var(--disp);
+  font-weight: 700;
+}
+.macro-mini-chip.p b { color: var(--brine); }
+.macro-mini-chip.f b { color: #D97706; }
+.macro-mini-chip.c b { color: #059669; }
 
-.plan-card-preview{background:#FFFFFF; border:1px solid var(--line, #DDE4E4); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:8px}
-.preview-meal-row{display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:13px}
-.meal-tag-wrap{display:inline-flex; align-items:center; gap:6px; flex-shrink:0}
-.meal-color-dot{width:7px; height:7px; border-radius:50%; display:inline-block}
-.meal-color-dot.b{background:#F59E0B}
-.meal-color-dot.l{background:#0EA5E9}
-.meal-color-dot.d{background:#10B981}
-.meal-color-dot.n{background:#8B5CF6}
+.plan-card-preview {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.preview-meal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+  padding-bottom: 6px;
+  border-bottom: 1px dotted var(--line);
+}
+.preview-meal-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.meal-tag-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.meal-color-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.meal-color-dot.b { background: var(--badge-b); }
+.meal-color-dot.l { background: var(--badge-l); }
+.meal-color-dot.d { background: var(--badge-d); }
+.meal-color-dot.n { background: var(--badge-n); }
 
-.meal-cat-name{font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--slate, #586E78); font-weight:600}
-.meal-dish-name{color:var(--steel, #16242B); font-weight:500; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.meal-cat-name {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--slate);
+  font-weight: 600;
+}
+.meal-dish-name {
+  color: var(--steel);
+  font-weight: 500;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-.plan-card-btns{display:flex; gap:10px; margin-top:4px}
-.plan-card-btns button{flex:1; padding:10px 14px; font-size:14px}
-.btn.active-plan-btn{background:#E0F2FE; color:#0369A1; border-color:#BAE6FD; font-weight:600; cursor:default}
-.btn.btn-outline-danger{border:1px solid var(--line, #DDE4E4); background:#FFFFFF; color:#DC2626}
-.btn.btn-outline-danger:hover{background:#FEF2F2; border-color:#FCA5A5}
+.plan-card-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+.plan-card-btns button {
+  flex: 1;
+  height: 38px;
+}
+.btn.btn-apply {
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  color: var(--steel);
+  font-weight: 600;
+  transition: all .18s ease;
+}
+.btn.btn-apply:hover {
+  background: rgba(20, 108, 126, 0.06);
+  border-color: var(--brine);
+  color: var(--brine);
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+  background: rgba(20, 108, 126, 0.04);
+  border: 1px solid var(--brine);
+  color: var(--brine);
+  font-weight: 600;
+}
+.btn-outline-primary:hover {
+  background: var(--brine);
+  color: #FFFFFF;
+}
+
+.btn.active-plan-btn {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-weight: 600;
+  cursor: default;
+  box-shadow: none;
+}
+.btn.btn-outline-danger {
+  border: 1px solid var(--line);
+  background: #FFFFFF;
+  color: #DC2626;
+}
+.btn.btn-outline-danger:hover {
+  background: #FEF2F2;
+  border-color: #FCA5A5;
+}
 
 .empty-plans-card{text-align:center; padding:40px 20px; background:#FFFFFF; border:1px dashed var(--line, #DDE4E4); border-radius:10px; color:var(--slate, #586E78)}
 .empty-plans-card p{margin:12px 0 20px; font-size:15px}
@@ -81,8 +212,29 @@
 .profile-form label{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--slate, #586E78); margin-bottom:6px; display:block}
 .profile-form input, .profile-form select{width:100%; padding:10px 14px; border:1px solid var(--line, #DDE4E4); border-radius:6px; font-family:inherit; font-size:15px; background:#FFFFFF; color:var(--steel, #16242B)}
 .gender-selector{display:flex; gap:8px}
-.gender-selector button{flex:1; padding:10px; border:1px solid var(--line, #DDE4E4); border-radius:6px; background:#FFFFFF; cursor:pointer; font-family:inherit; font-size:14px; transition:.15s}
-.gender-selector button[aria-pressed="true"]{background:var(--brine, #146C7E); color:#FFFFFF; border-color:var(--brine, #146C7E); font-weight:600}
+.gender-selector button{
+  flex:1;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:#FFFFFF;
+  color:var(--steel);
+  cursor:pointer;
+  font-family:var(--body);
+  font-size:14px;
+  font-weight:500;
+  transition:all .18s ease;
+}
+.gender-selector button:hover{
+  border-color:var(--brine);
+  color:var(--brine);
+}
+.gender-selector button[aria-pressed="true"]{
+  background:rgba(20, 108, 126, 0.1);
+  color:var(--brine);
+  border:1.5px solid var(--brine);
+  font-weight:600;
+}
 
 .calc-summary-box{background:#F0F9FF; border:1px solid #BAE6FD; border-radius:8px; padding:16px; margin-top:12px; display:flex; flex-direction:column; gap:10px}
 .calc-summary-box div{display:flex; justify-content:space-between; font-size:13px; color:var(--slate, #586E78)}
@@ -116,7 +268,16 @@
 
 <header class="top">
   <div class="wrap">
-    <a href="index.html" class="mark">Заготовка <span>· свой план</span></a>
+    <a class="mark" href="index.html" aria-label="свой план">
+      <svg class="mark-icon" width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="13" height="13" rx="4" fill="#146C7E"/>
+        <rect x="17" y="2" width="13" height="13" rx="4" fill="#7FA23C"/>
+        <rect x="2" y="17" width="13" height="13" rx="4" fill="#D9971F"/>
+        <rect x="17" y="17" width="13" height="13" rx="4" fill="#146C7E" fill-opacity="0.85"/>
+        <circle cx="23.5" cy="23.5" r="2.5" fill="#FFFFFF"/>
+      </svg>
+      <span>свой план</span>
+    </a>
     <nav class="nav" aria-label="Основная навигация">
       <a href="profile.html" aria-current="page">Профиль</a>
       <a href="index.html">Рецепты</a>
@@ -127,9 +288,10 @@
   </div>
 </header>
 
-<main class="wrap">
-  <section class="hero profile-hero">
-    <h1>Личный кабинет<br>и <em>сохранённые рационы</em></h1>
+<main class="wrap" style="padding-bottom: 80px;">
+  <section class="hero-box" id="hero-box">
+    <div class="hero-eyebrow">ЛИЧНЫЙ КАБИНЕТ · СОХРАНЁННЫЕ ПЛАНЫ</div>
+    <h1>Личный кабинет и <em>сохранённые рационы</em></h1>
     <p class="lede">Сохраняйте готовые варианты меню, переключайтесь между планами в один клик или настройте персональную норму калорий.</p>
   </section>
 
@@ -142,7 +304,7 @@
       </div>
 
       <div class="plan-actions-bar">
-        <button class="btn btn-solid" onclick="handleSaveCurrentPlan()">Сохранить текущий план</button>
+        <button class="btn btn-outline-primary" onclick="handleSaveCurrentPlan()">Сохранить текущий план</button>
         <button class="btn" onclick="handleCreateNewPlan()">Собрать новый план</button>
       </div>
 
@@ -345,9 +507,9 @@ function renderSavedPlansList() {
           '<b>~' + dailyKcal.toLocaleString('ru-RU') + ' ккал</b>' +
         '</div>' +
         '<div class="plan-card-macros-chips">' +
-          '<div class="macro-mini-chip p"><b>' + dailyP + 'г</b> Белка</div>' +
-          '<div class="macro-mini-chip f"><b>' + dailyF + 'г</b> Жиров</div>' +
-          '<div class="macro-mini-chip c"><b>' + dailyC + 'г</b> Углев.</div>' +
+          '<div class="macro-mini-chip p"><b>' + dailyP + ' г</b> Белка</div>' +
+          '<div class="macro-mini-chip f"><b>' + dailyF + ' г</b> Жиров</div>' +
+          '<div class="macro-mini-chip c"><b>' + dailyC + ' г</b> Углеводов</div>' +
         '</div>' +
       '</div>' +
 
@@ -371,7 +533,10 @@ function renderSavedPlansList() {
       '</div>' +
 
       '<div class="plan-card-btns">' +
-        '<button class="btn btn-solid" onclick="handleApplyPlan(\'' + p.id + '\')">Применить</button>' +
+        (activeId === p.id ?
+          '<button class="btn active-plan-btn" disabled>✓ Активный рацион</button>' :
+          '<button class="btn btn-apply" onclick="handleApplyPlan(\'' + p.id + '\')">Применить</button>'
+        ) +
         '<button class="btn btn-outline-danger" onclick="handleDeletePlan(\'' + p.id + '\')">Удалить</button>' +
       '</div>' +
     '</div>';
@@ -708,5 +873,12 @@ function injectCustomDialogHTML() {
 
 initProfilePage();
 </script>
+<script src="particles.js"></script>
+<script>
+  if (typeof initParticles === 'function') {
+    initParticles('hero-box', { color: '#146C7E', quantity: 50, size: 1.3 });
+  }
+</script>
 </body>
 </html>
+

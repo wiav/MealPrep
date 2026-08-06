@@ -1,11 +1,13 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Календарь — планирование диеты по дням</title>
 <meta name="description" content="Календарь на месяц: расставьте завтраки, обеды, ужины и приёмы перед сном по датам, перенесите готовую пятидневку на любой день и следите за калориями, белком и клетчаткой.">
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -97,7 +99,16 @@
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="mark" href="index.html">Заготовка <span>·</span> свой план</a>
+    <a class="mark" href="index.html" aria-label="свой план">
+      <svg class="mark-icon" width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="13" height="13" rx="4" fill="#146C7E"/>
+        <rect x="17" y="2" width="13" height="13" rx="4" fill="#7FA23C"/>
+        <rect x="2" y="17" width="13" height="13" rx="4" fill="#D9971F"/>
+        <rect x="17" y="17" width="13" height="13" rx="4" fill="#146C7E" fill-opacity="0.85"/>
+        <circle cx="23.5" cy="23.5" r="2.5" fill="#FFFFFF"/>
+      </svg>
+      <span>свой план</span>
+    </a>
     <nav class="nav">
       <a href="profile.html">Профиль</a>
       <a href="index.html">Рецепты</a>
@@ -108,20 +119,18 @@
   </div>
 </header>
 
-<main>
-<section class="hero wrap">
-  <h1>Вся диета<br>на одном <em>листе</em><br>календаря.</h1>
-  <p class="lede">Нажмите на день, чтобы поставить завтрак, обед, ужин и приём
-    перед сном. Пятидневку из <a href="plan.html">конструктора</a> можно разложить
-    сразу, начиная с выбранной даты.</p>
-</section>
+<main class="wrap" style="padding-bottom: 80px;">
+  <section class="hero-box" id="hero-box">
+    <div class="hero-eyebrow">КАЛЕНДАРЬ РАЦИОНА · ПЛАНИРОВАНИЕ</div>
+    <h1>Вся диета и рацион на <em>одном листе</em> календаря</h1>
+    <p class="lede">Нажмите на день для настройки меню или разложите готовый пятидневный план из конструктора в один клик с любой выбранной даты.</p>
+  </section>
 
-<section class="sec wrap">
   <div class="cal-ctl noprint">
     <button class="btn" id="prev" aria-label="Предыдущий месяц">←</button>
     <span class="mon" id="mon"></span>
     <button class="btn" id="next" aria-label="Следующий месяц">→</button>
-    <select id="cal-saved-plans-select" class="saved-plans-select" style="padding:7px 12px; border:1px solid var(--line); border-radius:4px; font-family:inherit; font-size:13.5px; background:#FFFFFF; color:var(--steel); cursor:pointer" title="Выберите рацион для разложения">
+    <select id="cal-saved-plans-select" class="saved-plans-select" title="Выберите рацион для разложения">
       <option value="draft">Текущий черновик из конструктора</option>
     </select>
     <button class="btn btn-solid" id="apply">Разложить в календарь</button>
@@ -141,7 +150,6 @@
   <div class="day" id="day"></div>
   <div class="sum" id="sum"></div>
   <p class="sum-note">Статистика и средние показатели рассчитаны по всем зафиксированным в календаре дням — без добора перекусами, который предлагает <a href="plan.html">конструктор</a>.</p>
-</section>
 </main>
 
 <footer class="foot wrap">
@@ -709,8 +717,15 @@ function exportCalendarJPG() {
   }, 100);
 }
 </script>
+<script src="particles.js"></script>
+<script>
+  if (typeof initParticles === 'function') {
+    initParticles('hero-box', { color: '#146C7E', quantity: 50, size: 1.3 });
+  }
+</script>
 <!-- impeccable-live-start -->
 <script src="http://localhost:8401/live.js?token=4fa6ded7-7332-4de5-94ee-8a15176c392f"></script>
 <!-- impeccable-live-end -->
 </body>
 </html>
+
