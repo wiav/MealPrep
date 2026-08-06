@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -40,41 +40,98 @@
   box-shadow: 0 2px 8px rgba(20, 108, 126, 0.08);
 }
 
-/* ---- единый блок фильтра ---- */
+/* ---- изящный и структурированный блок фильтра ---- */
 .filter-box{
-  margin-top:36px;
+  margin-top:24px;
   border:1px solid var(--line);
-  border-radius:4px;
+  border-radius:8px;
   background:var(--frost);
-  padding:16px 20px;
+  padding:20px 22px;
   display:flex;
   flex-direction:column;
-  gap:12px;
+  gap:16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
 }
 
-/* строка: таблетки приёмов + разделитель + таблетки тегов + вид справа */
-.filter-row{
+.filter-top-row{
   display:flex;
   align-items:center;
-  gap:6px;
+  justify-content:space-between;
+  gap:14px;
   flex-wrap:wrap;
 }
+
+.filter-top-row .search-wrap{
+  flex:1;
+  min-width:240px;
+  margin-bottom:0;
+}
+
+.filter-section{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+
+.filter-section-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.filter-label{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--slate);
+  font-weight:600;
+}
+
+.filter-combine-badge {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  color: var(--brine);
+  background: var(--ing-bg);
+  border: 1px dashed rgba(20, 108, 126, 0.35);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
 .filter-pills{
   display:flex;
-  gap:5px;
+  gap:6px;
   flex-wrap:wrap;
   align-items:center;
 }
-.filter-divider{
-  width:1px;
-  height:22px;
-  background:var(--line);
-  flex-shrink:0;
-  margin:0 4px;
-}
-.filter-spacer{ flex:1 1 0; }
 
-/* кнопки вида каталога (мелкие, справа) */
+/* Стилизация тегов-свойств: пунктирный контур показывает, что тег добирается в комбинацию */
+#f-tag .chip {
+  border-style: dashed;
+  background: #FAFDFC;
+}
+#f-tag .chip:hover {
+  border-style: solid;
+  border-color: var(--brine);
+}
+#f-tag .chip[aria-pressed="true"] {
+  border-style: solid;
+  border-width: 1.5px;
+  border-color: var(--brine);
+  background: rgba(20, 108, 126, 0.12);
+  color: var(--brine);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(20, 108, 126, 0.08);
+}
+
+/* кнопки вида каталога (мелкие, справа сверху) */
 .view-toggle{
   display:flex;
   gap:4px;
@@ -84,7 +141,7 @@
   font-family: var(--body);
   font-size: 13px;
   font-weight: 500;
-  padding: 6px 14px;
+  padding: 7px 14px;
   border-radius: 6px;
   border: 1px solid var(--line);
   background: #FFFFFF;
@@ -107,8 +164,28 @@
 }
 
 /* строка счётчика */
-.count-row{display:flex; justify-content:space-between; align-items:center; gap:8px}
+.count-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding-top:12px;
+  border-top:1px solid var(--line);
+}
 .count{font-family:var(--mono); font-size:11.5px; color:var(--slate); margin:0}
+.btn-reset{
+  font-family:var(--body);
+  font-size:12.5px;
+  color:#DC2626;
+  background:none;
+  border:none;
+  cursor:pointer;
+  font-weight:500;
+  padding:4px 8px;
+  border-radius:4px;
+  transition:background .15s ease;
+}
+.btn-reset:hover{background:#FEF2F2}
 
 /* ---- навигационные аккордеоны ---- */
 .jump{display:flex; flex-direction:column; gap:8px; margin-top:24px}
@@ -227,21 +304,37 @@
     </div>
   </details>
 
-  <div class="filter-box" style="margin-top:20px;">
-    <div class="search-wrap">
-      <input type="search" id="f-search" class="search-input" placeholder="Поиск по названию или ингредиентам…" aria-label="Поиск по блюдам">
-      <kbd class="search-kbd">/</kbd>
-    </div>
-    <div class="filter-row">
-      <div class="filter-pills" id="f-meal"></div>
-      <div class="filter-divider"></div>
-      <div class="filter-pills" id="f-tag"></div>
-      <div class="filter-spacer"></div>
+  <div class="filter-box" style="margin-top:24px;">
+    <!-- Верхняя строка: поиск по рецептам и выбор вида каталога -->
+    <div class="filter-top-row">
+      <div class="search-wrap">
+        <input type="search" id="f-search" class="search-input" placeholder="Поиск по названию или ингредиентам…" aria-label="Поиск по блюдам">
+        <kbd class="search-kbd">/</kbd>
+      </div>
       <div class="view-toggle">
         <button class="view-btn" id="btn-mode-meal" aria-pressed="true" onclick="setGroupMode('meal')" title="По приёмам пищи">По приёмам</button>
         <button class="view-btn" id="btn-mode-matrix" aria-pressed="false" onclick="setGroupMode('matrix')" title="По базам и типам заготовок">По заготовкам</button>
       </div>
     </div>
+
+    <!-- Секция 1: Приём пищи -->
+    <div class="filter-section" style="border-top:none; padding-top:0;">
+      <div class="filter-section-head">
+        <span class="filter-label">Приём пищи:</span>
+      </div>
+      <div class="filter-pills" id="f-meal"></div>
+    </div>
+
+    <!-- Секция 2: Дополнительный фильтр по свойствам с пометкой о совмещении -->
+    <div class="filter-section">
+      <div class="filter-section-head">
+        <span class="filter-label">Фильтр по свойствам:</span>
+        <span class="filter-combine-badge">можно совмещать с приёмом пищи</span>
+      </div>
+      <div class="filter-pills" id="f-tag"></div>
+    </div>
+
+    <!-- Нижняя строка: счётчик результатов и сброс -->
     <div class="count-row">
       <p class="count" id="count"></p>
       <button class="btn-reset" id="btn-reset" hidden onclick="resetAllFilters()">Сбросить ✕</button>
@@ -570,8 +663,12 @@ function apply() {
   }
 
   var countParts = [shown + '\u00a0/\u00a0' + DISHES.length + ' блюд'];
-  if (fSearch && fSearch.trim()) countParts.push('поиск: «' + esc(fSearch.trim()) + '»');
+  if (fMeal) {
+    var mObj = MEALS.find(function(m) { return m.key === fMeal; });
+    if (mObj) countParts.push(mObj.name);
+  }
   if (fTag) countParts.push(TAGS[fTag] || fTag);
+  if (fSearch && fSearch.trim()) countParts.push('поиск: «' + esc(fSearch.trim()) + '»');
   if (currentGroupMode === 'matrix') countParts.push('по заготовкам');
   document.getElementById('count').textContent = countParts.join(' · ');
   var hasActiveFilter = Boolean(fMeal || fTag || fSearch.trim() || currentGroupMode !== 'meal');

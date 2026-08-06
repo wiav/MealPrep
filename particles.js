@@ -1,10 +1,20 @@
 /* ==========================================================================
-   Particles.js — Анимированные частицы внутри карточки-героя (hero-box)
+   Particles.js — Анимированные частицы с непрерывным сохранением состояния
    ========================================================================== */
 (function() {
+  var STORAGE_KEY = 'particles_state_v1';
+
   function initParticles(containerId, options) {
     options = options || {};
-    var container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+    var container = null;
+    if (typeof containerId === 'string') {
+      container = document.getElementById(containerId);
+    } else if (containerId && containerId.nodeType) {
+      container = containerId;
+    }
+    if (!container) {
+      container = document.getElementById('hero-box') || document.querySelector('.hero-box');
+    }
     if (!container) return;
 
     var color = options.color || '#146C7E';
@@ -51,15 +61,87 @@
 
     var rgb = hexToRgb(color);
 
+    function loadSavedParticles() {
+      try {
+        var raw = sessionStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        var data = JSON.parse(raw);
+        if (!data || !data.circles || !Array.isArray(data.circles) || data.circles.length !== quantity) return false;
+        
+        var elapsed = (Date.now() - (data.time || Date.now())) / 1000;
+        if (elapsed > 15) return false; // stale state (>15 sec)
+
+        var oldW = data.w || w || 1;
+        var oldH = data.h || h || 1;
+        var scaleX = w / oldW;
+        var scaleY = h / oldH;
+        var frames = Math.min(elapsed * 60, 300);
+
+        circles = data.circles.map(function(c) {
+          var cx = c.x * scaleX;
+          var cy = c.y * scaleY;
+          // Advance position by elapsed frames
+          cx += c.dx * frames;
+          cy += c.dy * frames;
+          // Wrap around container edges
+          if (w > 0) cx = ((cx % w) + w) % w;
+          if (h > 0) cy = ((cy % h) + h) % h;
+          return {
+            x: cx,
+            y: cy,
+            size: c.size,
+            alpha: c.alpha,
+            dx: c.dx,
+            dy: c.dy
+          };
+        });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function saveParticles() {
+      if (!circles || !circles.length || w <= 0 || h <= 0) return;
+      try {
+        var data = {
+          time: Date.now(),
+          w: w,
+          h: h,
+          circles: circles.map(function(c) {
+            return {
+              x: c.x,
+              y: c.y,
+              size: c.size,
+              alpha: c.alpha,
+              dx: c.dx,
+              dy: c.dy
+            };
+          })
+        };
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {}
+    }
+
     function resize() {
-      w = container.offsetWidth;
-      h = container.offsetHeight;
+      var newW = container.offsetWidth;
+      var newH = container.offsetHeight;
+      if (!newW || !newH) return;
+
+      var firstResize = (w === 0 && h === 0);
+      w = newW;
+      h = newH;
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       canvas.style.width = w + 'px';
       canvas.style.height = h + 'px';
       ctx.scale(dpr, dpr);
-      createParticles();
+
+      if (firstResize) {
+        if (!loadSavedParticles()) {
+          createParticles();
+        }
+      }
     }
 
     function createParticles() {
@@ -86,6 +168,8 @@
       mouse.x = -1000;
       mouse.y = -1000;
     });
+
+    var lastSaveTime = 0;
 
     function animate() {
       ctx.clearRect(0, 0, w, h);
@@ -114,9 +198,18 @@
         ctx.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + c.alpha + ')';
         ctx.fill();
       });
+
+      var now = Date.now();
+      if (now - lastSaveTime > 300) {
+        lastSaveTime = now;
+        saveParticles();
+      }
+
       requestAnimationFrame(animate);
     }
 
+    window.addEventListener('beforeunload', saveParticles);
+    window.addEventListener('pagehide', saveParticles);
     window.addEventListener('resize', resize);
     resize();
     animate();
