@@ -16,14 +16,14 @@
   min-width:9ch; text-align:center}
 .cal-ctl .sp{flex:1 1 20px}
 
-.dow{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px}
+.dow{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; margin-bottom:6px; width:100%; box-sizing:border-box}
 .dow span{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
-  text-transform:uppercase; color:var(--slate); text-align:center; padding:4px 0}
-.cal{display:grid; grid-template-columns:repeat(7,1fr); gap:6px}
+  text-transform:uppercase; color:var(--slate); text-align:center; padding:4px 0; min-width:0; overflow:hidden}
+.cal{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; width:100%; box-sizing:border-box}
 .cell{border:1px solid var(--line); border-radius:3px; background:var(--frost);
   min-height:110px; padding:7px 8px; text-align:left; cursor:pointer;
   font-family:inherit; color:inherit; display:flex; flex-direction:column;
-  gap:4px; transition:.12s}
+  gap:4px; transition:.12s; min-width:0; width:100%; overflow:hidden; box-sizing:border-box}
 .cell:hover{border-color:var(--brine)}
 .cell.out{background:transparent; border-color:transparent; cursor:default}
 .cell.today .num{color:#fff; background:var(--brine)}
@@ -36,12 +36,13 @@
 .num{font-family:var(--mono); font-size:11px; color:var(--slate);
   width:20px; height:20px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto}
 .mini{font-size:11px; line-height:1.35; color:var(--steel);
-  display:flex; gap:4px; align-items:flex-start}
-.mini i{flex:0 0 auto; width:6px; height:6px; border-radius:2px; margin-top:4px}
+  display:flex; gap:5px; align-items:center; min-width:0; width:100%; overflow:hidden}
+.mini i{flex:0 0 6px; width:6px; height:6px; border-radius:2px; margin-top:0}
 .mini.b i{background:var(--yolk)} .mini.l i{background:var(--brine)} .mini.d i{background:var(--dill)}
 .mini.n i{background:#6A5A8C}
-.mini span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.kc{margin-top:auto; font-family:var(--mono); font-size:10.5px; color:var(--slate)}
+.mini span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; flex:1 1 auto; display:block}
+.kc{margin-top:auto; font-family:var(--mono); font-size:10.5px; color:var(--slate); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.kc em{font-style:normal; opacity:.75}
 @media(max-width:560px){
   .cell{min-height:80px; padding:5px 5px}
   .mini{font-size:10px} .mini span{display:none}
@@ -102,6 +103,7 @@
       <a href="index.html">Рецепты</a>
       <a href="plan.html">Конструктор</a>
       <a href="calendar.html" aria-current="page">Календарь</a>
+      <a href="education.html">Обучение</a>
     </nav>
   </div>
 </header>
@@ -229,11 +231,16 @@ function drawCal() {
     var isDeployed = !!depDay;
     var e = cal[k] || {};
     var cls = 'cell' + (k === todayKey ? ' today' : '');
-    var t = { p: 0, kcal: 0 };
+    var t = { p: 0, f: 0, c: 0, fib: 0, kcal: 0, n: 0 };
     var rows = MEALS.map(function (m) {
       var dish = BY_ID[e[m.key]];
       if (!dish) return '';
-      t.kcal += dish.mac.kcal; t.p += dish.mac.p;
+      t.kcal += dish.mac.kcal;
+      t.p += dish.mac.p;
+      t.f += dish.mac.f;
+      t.c += dish.mac.c;
+      t.fib += (dish.mac.fib || 0);
+      t.n++;
       return '<span class="mini ' + m.key + '"><i></i><span>' + esc(dish.short) + '</span></span>';
     }).join('');
 
@@ -241,11 +248,17 @@ function drawCal() {
       '<span class="num">' + d.getDate() + '</span>' +
       '</div>';
 
+    var kcHtml = '';
+    if (t.n > 0) {
+      var add = suggestAddons(t, d.getDate());
+      var gap = (add && add.sum) ? add.sum.kcal : (add ? add.gap : 0);
+      kcHtml = '<span class="kc">' + t.kcal + ' ккал' + (gap >= 80 ? ' <em>(+' + gap + ')</em>' : '') + '</span>';
+    }
+
     html += '<button class="' + cls + '" data-k="' + k + '"' +
       ' aria-pressed="' + (k === picked) + '"' +
       ' aria-label="' + d.getDate() + ' ' + MONTHS[view.m].toLowerCase() + '">' +
-      numHeader + rows +
-      '<span class="kc">' + (t.kcal ? t.kcal + ' ккал' : '') + '</span></button>';
+      numHeader + rows + kcHtml + '</button>';
   }
   document.getElementById('cal').innerHTML = html;
 
@@ -263,6 +276,23 @@ function drawDay() {
   var pseudo = {};
   MEALS.forEach(function (m) { pseudo[m.key] = [e[m.key] || '']; });
   var t = dayCheck(pseudo, 0).totals;
+  var add = t.n ? suggestAddons(t, d.getDate()) : { items: [], sum: null, gap: 0 };
+
+  var addHtml = '';
+  if (add.items && add.items.length) {
+    addHtml = '<div class="day-addons" style="padding:14px 22px; background:#FAFDFC; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:8px">' +
+      '<div style="font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--brine); font-weight:600; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px">' +
+        '<span>Добрать до нормы · ' + add.sum.kcal + ' ккал</span>' +
+        '<span style="font-weight:400; color:var(--slate)">+' + add.sum.p + ' Б · +' + add.sum.fib + ' г клетчатки</span>' +
+      '</div>' +
+      '<div style="display:flex; flex-wrap:wrap; gap:6px 12px; font-size:13px; color:var(--steel)">' +
+        add.items.map(function(x) {
+          return '<span style="background:var(--ing-bg); padding:3px 8px; border-radius:3px; border:1px solid var(--line); display:inline-flex; gap:6px; align-items:baseline">' +
+            esc(x.n) + ' <b style="font-family:var(--mono); font-weight:600; font-size:12px; color:var(--brine)">' + esc(x.q) + '</b></span>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+  }
 
   document.getElementById('day').innerHTML =
     '<div class="day-h"><b>' + d.getDate() + ' ' + MONTHS[d.getMonth()].toLowerCase() + '</b>' +
@@ -284,9 +314,10 @@ function drawDay() {
           ' У · ' + dish.mac.kcal + ' ккал' : 'не выбрано') + '</p>' +
       '</div>';
     }).join('') + '</div>' +
-    '<div class="day-f"><span>Итог дня: <b>' + t.p + '</b> Б · <b>' + t.f +
+    addHtml +
+    '<div class="day-f"><span>Итог заготовки: <b>' + t.p + '</b> Б · <b>' + t.f +
       '</b> Ж · <b>' + t.c + '</b> У · <b>' + t.fib + '</b> клетчатки · <b>' +
-      t.kcal + '</b> ккал</span>' +
+      t.kcal + '</b> ккал' + (add.sum ? ' · <span style="color:var(--brine)">добор: <b>+' + add.sum.kcal + ' ккал</b></span> = <b>' + (t.kcal + add.sum.kcal) + '</b> ккал' : '') + '</span>' +
       '<span>приёмов: <b>' + t.n + ' / ' + MEALS.length + '</b></span>' +
       '<button class="btn noprint" id="dayclear">Очистить день</button></div>';
 
@@ -601,9 +632,12 @@ function generateCalendarCanvas() {
 
     // Калории внизу ячейки
     if (dayKcal > 0) {
-      ctx.font = 'bold 11px monospace, sans-serif';
+      ctx.font = '500 11px monospace, sans-serif';
       ctx.fillStyle = '#586E78';
-      ctx.fillText(dayKcal + ' ккал', cellX + 12, cellY + cellH - 12);
+      var add = typeof suggestAddons === 'function' ? suggestAddons({ p: 0, f: 0, c: 0, fib: 0, kcal: dayKcal, n: 1 }, d.getDate()) : null;
+      var gap = (add && add.sum) ? add.sum.kcal : (add ? add.gap : 0);
+      var kcLabel = dayKcal + ' ккал' + (gap >= 80 ? ' (+' + gap + ')' : '');
+      ctx.fillText(kcLabel, cellX + 10, cellY + cellH - 12);
     }
   }
 
