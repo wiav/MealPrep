@@ -1,8 +1,9 @@
 /* ==========================================================================
-   Particles.js — Анимированные частицы с непрерывным сохранением состояния
+   Particles.js — Анимированные частицы внутри карточки-героя (hero-box)
+   С точно исправленным позиционированием, масштабированием и поддержкой DPI
    ========================================================================== */
 (function() {
-  var STORAGE_KEY = 'particles_state_v1';
+  var STORAGE_KEY = 'particles_state_v2';
 
   function initParticles(containerId, options) {
     options = options || {};
@@ -34,11 +35,9 @@
     if (window.getComputedStyle(container).position === 'static') {
       container.style.position = 'relative';
     }
-    
-    // Вставляем холст первым ребенком
+
     container.insertBefore(canvas, container.firstChild);
 
-    // Убедимся, что контент внутри контейнера поднят выше canvas
     Array.prototype.forEach.call(container.children, function(child) {
       if (child !== canvas && window.getComputedStyle(child).zIndex === 'auto') {
         child.style.position = 'relative';
@@ -69,30 +68,24 @@
         if (!data || !data.circles || !Array.isArray(data.circles) || data.circles.length !== quantity) return false;
         
         var elapsed = (Date.now() - (data.time || Date.now())) / 1000;
-        if (elapsed > 15) return false; // stale state (>15 sec)
+        if (elapsed > 15) return false;
 
-        var oldW = data.w || w || 1;
-        var oldH = data.h || h || 1;
-        var scaleX = w / oldW;
-        var scaleY = h / oldH;
         var frames = Math.min(elapsed * 60, 300);
 
         circles = data.circles.map(function(c) {
-          var cx = c.x * scaleX;
-          var cy = c.y * scaleY;
-          // Advance position by elapsed frames
+          // Восстанавливаем абсолютные координаты из относительных (0..1)
+          var cx = (c.nx !== undefined ? c.nx : 0.5) * w;
+          var cy = (c.ny !== undefined ? c.ny : 0.5) * h;
           cx += c.dx * frames;
           cy += c.dy * frames;
-          // Wrap around container edges
-          if (w > 0) cx = ((cx % w) + w) % w;
-          if (h > 0) cy = ((cy % h) + h) % h;
+
+          // Мягкий обёртывающий диапазон с запасом для краев
+          var pad = 25;
+          if (w > 0) cx = (((cx + pad) % (w + pad * 2)) + (w + pad * 2)) % (w + pad * 2) - pad;
+          if (h > 0) cy = (((cy + pad) % (h + pad * 2)) + (h + pad * 2)) % (h + pad * 2) - pad;
+
           return {
-            x: cx,
-            y: cy,
-            size: c.size,
-            alpha: c.alpha,
-            dx: c.dx,
-            dy: c.dy
+            x: cx, y: cy, size: c.size, alpha: c.alpha, dx: c.dx, dy: c.dy
           };
         });
         return true;
@@ -106,12 +99,10 @@
       try {
         var data = {
           time: Date.now(),
-          w: w,
-          h: h,
           circles: circles.map(function(c) {
             return {
-              x: c.x,
-              y: c.y,
+              nx: c.x / w,
+              ny: c.y / h,
               size: c.size,
               alpha: c.alpha,
               dx: c.dx,
@@ -124,18 +115,23 @@
     }
 
     function resize() {
-      var newW = container.offsetWidth;
-      var newH = container.offsetHeight;
-      if (!newW || !newH) return;
+      var rect = container.getBoundingClientRect();
+      var newW = Math.max(1, Math.round(container.clientWidth || rect.width || 300));
+      var newH = Math.max(1, Math.round(container.clientHeight || rect.height || 210));
 
+      dpr = window.devicePixelRatio || 1;
       var firstResize = (w === 0 && h === 0);
+
       w = newW;
       h = newH;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
       canvas.style.width = w + 'px';
       canvas.style.height = h + 'px';
-      ctx.scale(dpr, dpr);
+
+      // Абсолютная установка матрицы трансформации вместо накопительного scale()
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       if (firstResize) {
         if (!loadSavedParticles()) {
@@ -173,11 +169,12 @@
 
     function animate() {
       ctx.clearRect(0, 0, w, h);
+
+      var pad = 25; // Запас вылета частиц за края карточки
       circles.forEach(function(c) {
         c.x += c.dx;
         c.y += c.dy;
 
-        // Отталкивание от мыши
         var mdx = c.x - mouse.x;
         var mdy = c.y - mouse.y;
         var dist = Math.sqrt(mdx * mdx + mdy * mdy);
@@ -187,11 +184,11 @@
           c.y += (mdy / dist) * force * 1.5;
         }
 
-        // Границы контейнера
-        if (c.x < 0) c.x = w;
-        if (c.x > w) c.x = 0;
-        if (c.y < 0) c.y = h;
-        if (c.y > h) c.y = 0;
+        // Мягкий переход через внешние границы карточки
+        if (c.x < -pad) c.x = w + pad;
+        if (c.x > w + pad) c.x = -pad;
+        if (c.y < -pad) c.y = h + pad;
+        if (c.y > h + pad) c.y = -pad;
 
         ctx.beginPath();
         ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
@@ -206,6 +203,13 @@
       }
 
       requestAnimationFrame(animate);
+    }
+
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(function() {
+        resize();
+      });
+      ro.observe(container);
     }
 
     window.addEventListener('beforeunload', saveParticles);

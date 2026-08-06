@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Рецепты — завтраки, обеды, ужины и приёмы перед сном</title>
-<meta name="description" content="75 рецептов с разметкой по приёмам пищи: завтраки, обеды, лёгкие ужины и казеиновые приёмы перед сном. БЖУ и клетчатка на порцию, пошаговое приготовление, сроки хранения.">
+<meta name="description" content="База рецептов с разметкой по приёмам пищи: завтраки, обеды, лёгкие ужины и казеиновые приёмы перед сном. Сбалансированный состав по БЖУ и клетчатке, пошаговое приготовление, сроки хранения.">
 <link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="icon" type="image/png" sizes="256x256" href="favicon.png">
@@ -254,27 +254,38 @@
 <!-- Левое плавающее меню собираемого плана -->
 <aside class="plan-sidebar" id="plan-sidebar" aria-label="Ваш собираемый рацион">
   <div class="plan-sidebar-header">
-    <div class="plan-sidebar-title">Ваш план</div>
+    <div class="plan-sidebar-title">
+      <svg class="plan-sidebar-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+      <span>Ваш план</span>
+    </div>
     <div class="plan-sidebar-actions">
       <button class="plan-sidebar-reset-btn" onclick="resetCurrentPlan()" title="Сбросить выбранные блюда">Сбросить</button>
-      <div class="plan-sidebar-count" id="plan-sidebar-count">0 / 4</div>
       <button class="plan-sidebar-toggle-btn" id="plan-sidebar-toggle-btn" onclick="togglePlanSidebar()" title="Свернуть / Развернуть панель">—</button>
     </div>
   </div>
   <div class="plan-sidebar-slots" id="plan-sidebar-slots"></div>
   <div class="plan-sidebar-footer">
-    <div class="plan-sidebar-summary" id="plan-sidebar-summary">
-      <span>Выберите 4 блюда</span>
+    <div class="plan-sidebar-summary-box" id="plan-sidebar-summary-box">
+      <div class="plan-sidebar-summary-lbl">ИТОГО В ДЕНЬ</div>
+      <div class="plan-sidebar-summary-val" id="plan-sidebar-summary">
+        <span>Выберите 4 блюда</span>
+      </div>
     </div>
-    <button class="plan-sidebar-rand-btn" onclick="randomizeCurrentPlan()" title="Сгенерировать случайный сбалансированный рацион">Случайный план</button>
-    <a href="plan.html" class="plan-sidebar-go-btn">Перейти к закупке →</a>
+    <button class="plan-sidebar-rand-btn" onclick="randomizeCurrentPlan()" title="Сгенерировать случайный сбалансированный рацион">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="1.5"/><circle cx="7" cy="7" r="1.5"/><circle cx="17" cy="17" r="1.5"/><circle cx="7" cy="17" r="1.5"/><circle cx="17" cy="7" r="1.5"/></svg>
+      <span>Случайный план</span>
+    </button>
+    <a href="plan.html" class="plan-sidebar-go-btn">
+      <span>ПЕРЕЙТИ К ЗАКУПКЕ</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
   </div>
 </aside>
 
 <main class="wrap" style="padding-bottom: 80px;">
   <section class="hero-box" id="hero-box">
-    <div class="hero-eyebrow">БАЗА РЕЦЕПТОВ · 75 БЛЮД С БЖУ</div>
-    <h1>Семьдесят пять блюд для <em>своего плана</em> питания</h1>
+    <div class="hero-eyebrow" id="hero-eyebrow">КАТАЛОГ СБАЛАНСИРОВАННЫХ БЛЮД</div>
+    <h1>Рецепты с БЖУ и клетчаткой для <em>своего плана</em></h1>
     <p class="lede">Завтраки, обеды, лёгкие ужины и приёмы перед сном — с БЖУ и клетчаткой на порцию, пошаговым приготовлением и сроком хранения. Собрать из них неделю можно в <a href="plan.html" style="color:var(--brine); font-weight:500;">конструкторе</a>.</p>
   </section>
 
@@ -528,7 +539,7 @@ var USED_TAGS = Object.keys(TAGS).filter(function (t) {
 var fMeal = '', fTag = '', fSearch = '';
 
 document.getElementById('f-meal').innerHTML =
-  '<button class="chip" data-meal="" aria-pressed="true">Все • 75</button>' +
+  '<button class="chip" data-meal="" aria-pressed="true">Все • ' + DISHES.length + '</button>' +
   MEALS.map(function (m) {
     var count = dishesFor(m.key).length;
     return '<button class="chip" data-meal="' + m.key + '" aria-pressed="false">' +
@@ -922,32 +933,21 @@ function updatePlanSidebar() {
       totalKcal += (dish.mac.kcal || 0);
       totalP += (dish.mac.p || 0);
 
-      return '<div class="plan-sidebar-slot filled">' +
+      return '<div class="plan-sidebar-slot filled slot-' + m.key + '">' +
         '<div class="plan-sidebar-slot-label">' +
-          '<span>' + esc(m.name) + '</span>' +
+          '<span class="slot-meal-pill ' + m.key + '">' + esc(m.name) + '</span>' +
           '<button class="plan-sidebar-remove-btn" onclick="removeDishFromSidebar(\'' + dish.id + '\')" title="Удалить из плана">✕</button>' +
         '</div>' +
         '<div class="plan-sidebar-slot-name" title="' + esc(dish.name) + '">' + esc(dish.short || dish.name) + '</div>' +
-        '<div class="plan-sidebar-slot-meta">' + (dish.mac.p || 0) + ' Б · ' + (dish.mac.kcal || 0) + ' ккал</div>' +
+        '<div class="plan-sidebar-slot-meta">' + (dish.mac.p || 0) + ' г Б · ' + (dish.mac.kcal || 0) + ' ккал</div>' +
       '</div>';
     } else {
-      return '<div class="plan-sidebar-slot">' +
-        '<div class="plan-sidebar-slot-label"><span>' + esc(m.name) + '</span></div>' +
+      return '<div class="plan-sidebar-slot slot-empty">' +
+        '<div class="plan-sidebar-slot-label"><span class="slot-meal-pill empty">' + esc(m.name) + '</span></div>' +
         '<button class="plan-sidebar-empty-btn" onclick="scrollToMealCategory(\'' + m.key + '\')">+ Выбрать ' + esc(m.name.toLowerCase()) + '</button>' +
       '</div>';
     }
   }).join('');
-
-  var countEl = document.getElementById('plan-sidebar-count');
-  if (countEl) {
-    if (filledCount === 4) {
-      countEl.textContent = '✓ 4 / 4';
-      countEl.classList.add('complete');
-    } else {
-      countEl.textContent = filledCount + ' / 4';
-      countEl.classList.remove('complete');
-    }
-  }
 
   var slotsEl = document.getElementById('plan-sidebar-slots');
   if (slotsEl) slotsEl.innerHTML = slotsHTML;
@@ -955,8 +955,11 @@ function updatePlanSidebar() {
   var sumEl = document.getElementById('plan-sidebar-summary');
   if (sumEl) {
     sumEl.innerHTML = filledCount > 0 ?
-      '<span>Примерно / день:</span> <b>' + totalP + ' Б · ~' + totalKcal + ' ккал</b>' :
-      '<span>Выберите 4 блюда</span>';
+      '<div class="plan-summary-pills">' +
+        '<span class="sum-pill p-pill"><b>' + totalP + ' г</b> белка</span>' +
+        '<span class="sum-pill cal-pill"><b>~' + totalKcal + '</b> ккал</span>' +
+      '</div>' :
+      '<span class="sum-empty-text">Выберите 4 блюда</span>';
   }
 }
 
@@ -1218,6 +1221,11 @@ document.addEventListener('pointerdown', function (e) {
     closeRecipeDrawer();
   }
 });
+
+var heroEb = document.getElementById('hero-eyebrow');
+if (heroEb && typeof DISHES !== 'undefined' && DISHES.length) {
+  heroEb.textContent = 'БАЗА РЕЦЕПТОВ · ' + DISHES.length + ' БЛЮД С БЖУ';
+}
 
 renderAllGroups();
 apply();

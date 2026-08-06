@@ -646,27 +646,27 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
   position: fixed;
   bottom: 24px;
   left: 24px;
-  width: 280px;
-  background: var(--frost);
+  width: 300px;
+  background: #FFFFFF;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 16px 40px rgba(22, 36, 43, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   z-index: 90;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: transform .25s ease, opacity .25s ease, max-height .25s ease;
+  transition: transform .25s ease, opacity .25s ease, box-shadow .25s ease;
+  box-sizing: border-box;
 }
 
-/* На экранах от 1640px панель фиксируется СЛЕВА ВНЕ основного контейнера .wrap (1080px) */
 @media (min-width: 1640px) {
   .plan-sidebar {
     top: 90px;
     bottom: auto;
-    left: calc((100vw - 1080px) / 2 - 275px);
-    width: 250px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    left: calc((100vw - 1080px) / 2 - 325px);
+    width: 300px;
+    box-shadow: 0 12px 36px rgba(22, 36, 43, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03);
   }
 }
 
@@ -690,6 +690,9 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
   align-items: center;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line);
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .plan-sidebar.collapsed .plan-sidebar-header {
@@ -705,31 +708,54 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
   display: flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+.plan-sidebar-icon {
+  color: var(--brine);
+  flex-shrink: 0;
 }
 
 .plan-sidebar-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
-/* ---- Улучшенный индикатор 4 из 4 ---- */
-@keyframes completePulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 2px 8px rgba(43, 122, 120, 0.25); }
-  50% { transform: scale(1.05); box-shadow: 0 4px 14px rgba(43, 122, 120, 0.45); }
+.plan-sidebar-reset-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--slate);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 5px;
+  cursor: pointer;
+  transition: all .15s ease;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.plan-sidebar-reset-btn:hover {
+  border-color: #e11d48;
+  color: #e11d48;
+  background: #ffe4e6;
 }
 
 .plan-sidebar-count {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  color: var(--slate);
-  background: var(--ing-bg);
-  padding: 3px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
+  color: var(--brine-dark);
+  background: rgba(20, 108, 126, 0.08);
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(20, 108, 126, 0.2);
   transition: all .25s ease;
-  letter-spacing: .02em;
+  letter-spacing: .01em;
   white-space: nowrap !important;
   display: inline-flex;
   align-items: center;
@@ -738,68 +764,99 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
 }
 
 .plan-sidebar-count.complete {
-  background: rgba(16, 185, 129, 0.12);
+  background: #ECFDF5;
   color: #059669;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  font-weight: 700;
+  border: 1px solid #A7F3D0;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  animation: completePulse 2s infinite;
 }
 
 .plan-sidebar-toggle-btn {
-  background: transparent;
+  background: var(--ice);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: 5px;
   color: var(--slate);
   font-family: var(--mono);
   font-size: 11px;
-  padding: 2px 6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
   cursor: pointer;
   transition: all .15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .plan-sidebar-toggle-btn:hover {
   border-color: var(--brine);
   color: var(--brine);
+  background: #FFFFFF;
 }
 
 .plan-sidebar-slots {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .plan-sidebar-slot {
   border: 1px dashed var(--line);
-  border-radius: 6px;
-  padding: 7px 9px;
-  background: var(--ice);
-  transition: .15s ease;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #FAFDFC;
+  transition: all .18s ease;
 }
 
 .plan-sidebar-slot.filled {
   border-style: solid;
   border-color: var(--line);
-  border-left: 3px solid var(--brine);
-  background: var(--frost);
+  border-left-width: 3.5px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.plan-sidebar-slot.filled.slot-b { border-left-color: #0284C7; }
+.plan-sidebar-slot.filled.slot-l { border-left-color: #16A34A; }
+.plan-sidebar-slot.filled.slot-d { border-left-color: #E07A5F; }
+.plan-sidebar-slot.filled.slot-n { border-left-color: #8B5CF6; }
+
+.plan-sidebar-slot.filled:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  border-color: rgba(20, 108, 126, 0.25);
 }
 
 .plan-sidebar-slot-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--slate);
-  margin-bottom: 2px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 4px;
 }
+
+.slot-meal-pill {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.slot-meal-pill.b { background: #E0F2FE; color: #0284C7; }
+.slot-meal-pill.l { background: #DCFCE7; color: #16A34A; }
+.slot-meal-pill.d { background: #FFEDD5; color: #EA580C; }
+.slot-meal-pill.n { background: #F3E8FF; color: #7C3AED; }
+.slot-meal-pill.empty { background: var(--ing-bg); color: var(--slate); }
 
 .plan-sidebar-slot-name {
   font-family: var(--body);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--steel);
-  line-height: 1.25;
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -807,9 +864,9 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
 
 .plan-sidebar-slot-meta {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--slate);
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .plan-sidebar-empty-btn {
@@ -818,9 +875,9 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
   color: var(--brine);
   font-family: var(--mono);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  padding: 0;
+  padding: 2px 0 0 0;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -833,68 +890,104 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
 }
 
 .plan-sidebar-remove-btn {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.04);
   border: none;
   color: var(--slate);
-  font-size: 13px;
+  font-size: 11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   cursor: pointer;
-  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
-  border-radius: 3px;
-  transition: .15s;
+  transition: all .15s ease;
 }
 
 .plan-sidebar-remove-btn:hover {
-  color: #e11d48;
-  background: #ffe4e6;
+  color: #E11D48;
+  background: #FEE2E2;
+  transform: scale(1.1);
 }
 
 .plan-sidebar-footer {
-  padding-top: 8px;
+  padding-top: 10px;
   border-top: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
-.plan-sidebar-summary {
+.plan-sidebar-summary-box {
+  background: #F8FAFC;
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+}
+
+.plan-sidebar-summary-lbl {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 9.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
   color: var(--slate);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.plan-sidebar-summary-val {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--steel);
+}
+
+.plan-summary-pills {
   display: flex;
-  justify-content: space-between;
+  gap: 8px;
   align-items: center;
 }
 
-.plan-sidebar-reset-btn {
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  color: var(--slate);
+.sum-pill {
+  flex: 1;
   font-family: var(--mono);
-  font-size: 10.5px;
-  padding: 2px 6px;
-  cursor: pointer;
-  transition: all .15s ease;
+  font-size: 11.5px;
+  padding: 6px 8px;
+  border-radius: 7px;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
-.plan-sidebar-reset-btn:hover {
-  border-color: #e11d48;
-  color: #e11d48;
-  background: #ffe4e6;
+.sum-pill.p-pill {
+  background: #FFFFFF;
+  color: var(--steel);
+  border: 1px solid var(--line);
+}
+
+.sum-pill.cal-pill {
+  background: #FFFFFF;
+  color: var(--brine-dark);
+  border: 1px solid var(--line);
+  font-weight: 700;
+}
+
+.sum-empty-text {
+  font-size: 11.5px;
+  color: var(--slate);
 }
 
 .plan-sidebar-rand-btn {
-  background: var(--ice);
+  background: #FFFFFF;
   border: 1px solid var(--line);
-  border-radius: 6px;
-  color: var(--brine);
+  border-radius: 8px;
+  color: var(--steel);
   font-family: var(--body);
   font-size: 13px;
-  padding: 8px;
+  padding: 9px 12px;
   cursor: pointer;
   text-align: center;
   font-weight: 500;
@@ -902,36 +995,52 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
 }
 
 .plan-sidebar-rand-btn:hover {
-  background: var(--ing-bg);
+  background: rgba(20, 108, 126, 0.04);
   border-color: var(--brine);
   color: var(--brine-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(20, 108, 126, 0.08);
 }
 
 .plan-sidebar-go-btn {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: .05em;
+  font-family: var(--body);
+  font-size: 12px;
+  letter-spacing: .04em;
   text-transform: uppercase;
-  background: var(--brine);
-  color: #fff;
+  background: linear-gradient(135deg, var(--brine) 0%, var(--brine-dark) 100%);
+  color: #FFFFFF;
   border: none;
-  border-radius: 4px;
-  padding: 8px 10px;
+  border-radius: 8px;
+  padding: 11px 14px;
   cursor: pointer;
   text-decoration: none;
   text-align: center;
   font-weight: 600;
-  transition: .15s;
-  display: block;
+  transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(20, 108, 126, 0.28);
+}
+
+.plan-sidebar-go-btn svg {
+  transition: transform .2s ease;
 }
 
 .plan-sidebar-go-btn:hover {
-  background: var(--brine-dark);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(20, 108, 126, 0.38);
+  filter: brightness(1.04);
+}
+
+.plan-sidebar-go-btn:hover svg {
+  transform: translateX(3px);
 }
 
 /* ---- сетка приёмов для режима Единый рацион ---- */
@@ -948,6 +1057,68 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
 @media (max-width: 540px) {
   .repeat-slots-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Smooth Progressive Page Entry Animations
+   ========================================================================== */
+@keyframes pageFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.top {
+  animation: pageFadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-box {
+  animation: pageFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.06s both;
+}
+
+.rules-spoiler,
+.proof-spoiler {
+  animation: pageFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+}
+
+.filter-box,
+.edu-controls,
+.profile-card,
+.cal-ctl,
+.day {
+  animation: pageFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+}
+
+.group,
+.article-grid,
+.cal,
+.shopping-card,
+.rec-grid {
+  animation: pageFadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top,
+  .hero-box,
+  .rules-spoiler,
+  .proof-spoiler,
+  .filter-box,
+  .edu-controls,
+  .profile-card,
+  .cal-ctl,
+  .day,
+  .group,
+  .article-grid,
+  .cal,
+  .shopping-card,
+  .rec-grid {
+    animation: none !important;
   }
 }
 
