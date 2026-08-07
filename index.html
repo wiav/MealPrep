@@ -938,13 +938,19 @@ function updatePlanSidebar() {
           '<span class="slot-meal-pill ' + m.key + '">' + esc(m.name) + '</span>' +
           '<button class="plan-sidebar-remove-btn" onclick="removeDishFromSidebar(\'' + dish.id + '\')" title="Удалить из плана">✕</button>' +
         '</div>' +
-        '<div class="plan-sidebar-slot-name" title="' + esc(dish.name) + '">' + esc(dish.short || dish.name) + '</div>' +
-        '<div class="plan-sidebar-slot-meta">' + (dish.mac.p || 0) + ' г Б · ' + (dish.mac.kcal || 0) + ' ккал</div>' +
+        '<div class="plan-sidebar-slot-body">' +
+          '<div class="plan-sidebar-slot-name" title="' + esc(dish.name) + '">' + esc(dish.short || dish.name) + '</div>' +
+          '<div class="plan-sidebar-slot-meta">' + (dish.mac.p || 0) + ' г Б · ' + (dish.mac.kcal || 0) + ' ккал</div>' +
+        '</div>' +
       '</div>';
     } else {
-      return '<div class="plan-sidebar-slot slot-empty">' +
-        '<div class="plan-sidebar-slot-label"><span class="slot-meal-pill empty">' + esc(m.name) + '</span></div>' +
-        '<button class="plan-sidebar-empty-btn" onclick="scrollToMealCategory(\'' + m.key + '\')">+ Выбрать ' + esc(m.name.toLowerCase()) + '</button>' +
+      return '<div class="plan-sidebar-slot slot-empty slot-' + m.key + '">' +
+        '<div class="plan-sidebar-slot-label">' +
+          '<span class="slot-meal-pill ' + m.key + '">' + esc(m.name) + '</span>' +
+        '</div>' +
+        '<div class="plan-sidebar-slot-body">' +
+          '<button class="plan-sidebar-empty-btn" onclick="scrollToMealCategory(\'' + m.key + '\')">+ Выбрать ' + esc(m.name.toLowerCase()) + '</button>' +
+        '</div>' +
       '</div>';
     }
   }).join('');
@@ -1086,10 +1092,24 @@ function addDishToCurrentPlan(id) {
         }, 250);
       }
     } else if (mealKey === 'n') {
-      // После выбора приёма "Перед сном" автоматически переносим в Конструктор (plan.html)
-      setTimeout(function() {
-        window.location.href = 'plan.html';
-      }, 350);
+      var hasB = !!getDishIdFromMeal(plan, 'b');
+      var hasL = !!getDishIdFromMeal(plan, 'l');
+      var hasD = !!getDishIdFromMeal(plan, 'd');
+      if (hasB && hasL && hasD) {
+        // Завтрак, обед и ужин уже заполнены — переносим в Конструктор (plan.html)
+        setTimeout(function() {
+          window.location.href = 'plan.html';
+        }, 350);
+      } else {
+        // План не полностью заполнен — скроллим к первому незаполненному приёму пищи
+        var missingMeal = !hasB ? 'b' : (!hasL ? 'l' : 'd');
+        var missingSection = document.getElementById('g-' + missingMeal);
+        if (missingSection) {
+          setTimeout(function() {
+            missingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 250);
+        }
+      }
     }
   } else {
     save('mp-plan', plan);
