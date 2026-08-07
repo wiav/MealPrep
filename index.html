@@ -19,7 +19,7 @@
   font-weight: 500;
   padding: 0 14px;
   height: 38px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid var(--line);
   background: #FFFFFF;
   color: var(--steel);
@@ -44,13 +44,13 @@
 .filter-box{
   margin-top:24px;
   border:1px solid var(--line);
-  border-radius:8px;
-  background:var(--frost);
+  border-radius:12px;
+  background:#FFFFFF;
   padding:20px 22px;
   display:flex;
   flex-direction:column;
   gap:16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 16px rgba(22, 36, 43, 0.04);
 }
 
 .filter-top-row{
@@ -98,7 +98,7 @@
   color: var(--brine);
   background: var(--ing-bg);
   border: 1px dashed rgba(20, 108, 126, 0.35);
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 2px 8px;
   font-weight: 500;
   display: inline-flex;
@@ -142,7 +142,7 @@
   font-size: 13px;
   font-weight: 500;
   padding: 7px 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid var(--line);
   background: #FFFFFF;
   color: var(--steel);
@@ -182,14 +182,14 @@
   cursor:pointer;
   font-weight:500;
   padding:4px 8px;
-  border-radius:4px;
+  border-radius:6px;
   transition:background .15s ease;
 }
 .btn-reset:hover{background:#FEF2F2}
 
 /* ---- навигационные аккордеоны ---- */
 .jump{display:flex; flex-direction:column; gap:8px; margin-top:24px}
-.jump-col{border:1px solid var(--line); border-radius:4px; background:var(--frost); overflow:hidden}
+.jump-col{border:1px solid var(--line); border-radius:12px; background:#FFFFFF; box-shadow:0 4px 16px rgba(22, 36, 43, 0.04); overflow:hidden}
 .jump-summary{padding:12px 16px; cursor:pointer; user-select:none;
   display:flex; justify-content:space-between; align-items:center; list-style:none; transition:.12s}
 .jump-summary::-webkit-details-marker{display:none}
@@ -213,11 +213,11 @@
 .group-h p{margin:0; font-size:15px; color:var(--slate); flex:1 1 260px}
 .rec[hidden]{display:none}
 .tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:14px}
-.tag{font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:3px;
+.tag{font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:6px;
   background:var(--ing-bg); color:var(--slate); white-space:nowrap;
   border:1px solid var(--line)}
 .rules{display:grid; gap:0; margin-top:30px; border:1px solid var(--line);
-  border-radius:4px; background:var(--frost); overflow:hidden}
+  border-radius:12px; background:#FFFFFF; box-shadow:0 4px 16px rgba(22, 36, 43, 0.04); overflow:hidden}
 @media(min-width:760px){.rules{grid-template-columns:repeat(2,1fr)}}
 .rule{padding:18px 22px; border-bottom:1px solid var(--line)}
 @media(min-width:760px){.rule:nth-child(odd){border-right:1px solid var(--line)}}
@@ -225,7 +225,7 @@
   text-transform:uppercase; color:var(--brine); margin-bottom:7px}
 .rule p{margin:0; font-size:14.5px; color:var(--slate)}
 .empty{padding:26px; text-align:center; color:var(--slate); font-size:15px;
-  border:1px dashed var(--line); border-radius:4px}
+  border:1px dashed var(--line); border-radius:12px; background:#FFFFFF; box-shadow:0 4px 16px rgba(22, 36, 43, 0.04)}
 </style>
 </head>
 <body>

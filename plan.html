@@ -199,15 +199,16 @@
 
 /* ---- итог недели ---- */
 .tot{display:grid; gap:1px; margin-top:22px; background:var(--line);
-  border:1px solid var(--line); border-radius:4px; overflow:hidden}
+  border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  box-shadow:0 4px 16px rgba(22, 36, 43, 0.04)}
 @media(min-width:620px){.tot{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:940px){.tot{grid-template-columns:repeat(6,1fr)}}
-.tot div{background:var(--frost); padding:16px 18px}
-.tot span{display:block; font-family:var(--mono); font-size:11px; letter-spacing:.1em;
-  text-transform:uppercase; color:var(--slate); margin-bottom:5px}
-.tot b{font-family:var(--disp); font-size:22px; letter-spacing:-.02em}
-.tot i{display:block; font-style:normal; font-family:var(--mono); font-size:11px;
-  color:var(--slate); margin-top:5px}
+.tot div{background:#FFFFFF; padding:18px 20px; display:flex; flex-direction:column; justify-content:flex-start; box-sizing:border-box}
+.tot span{display:flex; align-items:flex-start; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:8px; min-height:28px; line-height:1.35}
+.tot b{font-family:var(--disp); font-size:22px; letter-spacing:-.02em; line-height:1.1; margin-bottom:6px}
+.tot i{display:flex; align-items:flex-start; font-style:normal; font-family:var(--mono); font-size:11px;
+  color:var(--slate); margin-top:auto; min-height:28px; line-height:1.35}
 /* попадание в норму: цвет ведёт глаз, подпись рядом объясняет — на цвет одна
    опора не годится, страницу читают и в чёрно-белой печати */
 .g-ok{color:#3E7A2E} .g-low{color:#A8471C} .g-high{color:#A8471C}
@@ -215,14 +216,15 @@
 .tot-note{margin:12px 0 0; max-width:60ch; font-size:14px; color:var(--slate)}
 
 /* ---- заходы в магазин ---- */
-.run{border:1px solid var(--line); border-radius:4px; background:var(--frost);
+.run{border:1px solid var(--line); border-radius:12px; background:#FFFFFF;
+  box-shadow:0 4px 16px rgba(22, 36, 43, 0.04);
   overflow:hidden; margin-bottom:20px}
 .run-h{display:flex; align-items:baseline; gap:10px 16px; flex-wrap:wrap;
-  padding:18px 22px; border-bottom:1px solid var(--line); background:#EFF4F5}
+  padding:18px 22px; border-bottom:1px solid var(--line); background:#F8FAFC}
 .run-h b{font-family:var(--disp); font-size:17px; letter-spacing:-0.02em}
 .run-h em{font-style:normal; font-family:var(--mono); font-size:12px; color:var(--slate)}
 .mode-chips, .days-chips{display:flex; gap:6px; flex-wrap:wrap}
-.saved-plans-select{padding:6px 12px; border:1px solid var(--line); border-radius:4px; font-family:inherit; font-size:13px; background:#FFFFFF; color:var(--steel); cursor:pointer}
+.saved-plans-select{padding:6px 12px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:13.5px; background:#FFFFFF; color:var(--steel); cursor:pointer}
 .saved-plans-select:hover{border-color:var(--brine)}
 .plan-deploy-panel{
   display:flex;
@@ -265,7 +267,7 @@
   font-family: var(--mono);
   font-size: 11.5px;
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: 8px;
   background: var(--ing-bg);
   color: var(--brine);
   font-weight: 600;
@@ -277,8 +279,8 @@
 @media(min-width:1000px){.run-aisles{grid-template-columns:repeat(3,1fr)}}
 .bar-ctl{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:26px}
 .hint{margin:0 0 26px; max-width:56ch; font-size:15px; color:var(--slate)}
-.empty{padding:30px 22px; border:1px dashed var(--line); border-radius:4px;
-  color:var(--slate); font-size:15px}
+.empty{padding:30px 22px; border:1px dashed var(--line); border-radius:12px;
+  color:var(--slate); font-size:15px; background:#FFFFFF; box-shadow:0 4px 16px rgba(22, 36, 43, 0.04)}
 </style>
 </head>
 <body>
@@ -587,18 +589,18 @@ function drawTotals(sum, raw) {
   var totalSlots = MEALS.length * planDaysCount;
 
   document.getElementById('tot').innerHTML =
-    cell('Приёмов заполнено', w.filled + ' / ' + totalSlots,
+    cell('Слотов заполнено', w.filled + ' / ' + totalSlots,
          w.filled === totalSlots ? 'ok' : 'partial',
          w.filled === totalSlots ? 'план собран' : 'план ещё не собран') +
-    cell('Калорий в день', w.filled ? avg(sum.kcal) : '—',
+    cell('Калории в день', w.filled ? avg(sum.kcal) : '—',
          st(hit(avg(sum.kcal), PROFILE.kcal)),
          'норма ' + PROFILE.kcal.min + '–' + PROFILE.kcal.max +
          (w.filled ? ' · заготовка ' + avg(raw.kcal) : '')) +
-    cell('Белка в день', w.filled ? avg(sum.p) + ' г' : '—',
+    cell('Белок в день', w.filled ? avg(sum.p) + ' г' : '—',
          st(hit(avg(sum.p), PROFILE.p)),
          'норма ' + PROFILE.p.min + '–' + PROFILE.p.max + ' г' +
          (w.filled ? ' · заготовка ' + avg(raw.p) : '')) +
-    cell('Клетчатки в день', w.filled ? avg(sum.fib) + ' г' : '—',
+    cell('Клетчатка в день', w.filled ? avg(sum.fib) + ' г' : '—',
          st(hit(avg(sum.fib), PROFILE.fib)),
          'норма от ' + PROFILE.fib.min + ' г' +
          (w.filled ? ' · заготовка ' + avg(raw.fib) : '')) +
@@ -613,7 +615,7 @@ function drawTotals(sum, raw) {
 function cell(label, value, state, note) {
   return '<div><span>' + label + '</span>' +
     '<b' + (state ? ' class="g-' + state + '"' : '') + '>' + value + '</b>' +
-    (note ? '<i>' + note + '</i>' : '') + '</div>';
+    '<i>' + (note ? note : '') + '</i></div>';
 }
 
 /* ---- закупка по заходам ---- */

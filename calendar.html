@@ -13,28 +13,100 @@
 <link rel="stylesheet" href="style.css">
 <script src="jspdf.umd.min.js"></script>
 <style>
-.cal-ctl{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:24px}
-.cal-ctl .mon{font-family:var(--disp); font-size:19px; letter-spacing:-.02em;
-  min-width:9ch; text-align:center}
-.cal-ctl .sp{flex:1 1 20px}
+.cal-ctl {
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(22, 36, 43, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cal-ctl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cal-ctl-row.top-row {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.cal-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cal-nav-group .mon {
+  font-family: var(--disp);
+  font-size: 17px;
+  letter-spacing: -.02em;
+  color: var(--steel);
+  min-width: 140px;
+  text-align: center;
+  font-weight: 700;
+}
+.cal-deploy-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cal-tools-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cal-tools-group .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cal-danger-group {
+  display: flex;
+  align-items: center;
+}
+.btn-danger-link {
+  color: #DC2626 !important;
+  background: transparent !important;
+  border: 1px solid rgba(220, 38, 38, 0.2) !important;
+}
+.btn-danger-link:hover {
+  background: #FEE2E2 !important;
+  border-color: #DC2626 !important;
+}
+@media (max-width: 768px) {
+  .cal-ctl-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cal-nav-group, .cal-deploy-group, .cal-tools-group, .cal-danger-group {
+    justify-content: center;
+    width: 100%;
+  }
+}
 
 .dow{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; margin-bottom:6px; width:100%; box-sizing:border-box}
 .dow span{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
   text-transform:uppercase; color:var(--slate); text-align:center; padding:4px 0; min-width:0; overflow:hidden}
 .cal{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; width:100%; box-sizing:border-box}
-.cell{border:1px solid var(--line); border-radius:3px; background:var(--frost);
+.cell{border:1px solid var(--line); border-radius:8px; background:#FFFFFF;
   min-height:110px; padding:7px 8px; text-align:left; cursor:pointer;
   font-family:inherit; color:inherit; display:flex; flex-direction:column;
-  gap:4px; transition:.12s; min-width:0; width:100%; overflow:hidden; box-sizing:border-box}
-.cell:hover{border-color:var(--brine)}
-.cell.out{background:transparent; border-color:transparent; cursor:default}
+  gap:4px; transition:all .15s ease; min-width:0; width:100%; overflow:hidden; box-sizing:border-box}
+.cell:hover{border-color:var(--brine); box-shadow:0 4px 12px rgba(20, 108, 126, 0.08); transform:translateY(-1px)}
+.cell.out{background:transparent; border-color:transparent; cursor:default; transform:none; box-shadow:none}
 .cell.today .num{color:#fff; background:var(--brine)}
-.cell[aria-pressed="true"]{border-color:var(--brine); box-shadow:inset 0 0 0 1.5px var(--brine)}
+.cell[aria-pressed="true"]{border-color:var(--brine); box-shadow:0 0 0 2px var(--brine)}
 .cell.target-range{background:var(--ing-bg); border-color:var(--brine)}
 .cell.target-range:hover{border-color:var(--brine-dark)}
 .cal.highlight-deploy .cell.target-range{box-shadow:inset 0 0 0 2px var(--brine); background:var(--ing-bg)}
 .proj-badge{font-family:var(--mono); font-size:9.5px; letter-spacing:.04em;
-  padding:1px 5px; border-radius:3px; background:var(--brine); color:#fff; font-weight:600; white-space:nowrap}
+  padding:2px 6px; border-radius:6px; background:var(--brine); color:#fff; font-weight:600; white-space:nowrap}
 .num{font-family:var(--mono); font-size:11px; color:var(--slate);
   width:20px; height:20px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto}
 .mini{font-size:11px; line-height:1.35; color:var(--steel);
@@ -53,45 +125,44 @@
 }
 
 /* ---- панель дня ---- */
-.day{border:1px solid var(--line); border-radius:4px; background:var(--frost);
-  margin-top:26px; overflow:hidden}
-.day-h{display:flex; align-items:baseline; gap:10px 16px; flex-wrap:wrap;
-  padding:18px 22px; border-bottom:1px solid var(--line); background:#EFF4F5}
-.day-h b{font-family:var(--disp); font-size:18px; letter-spacing:-.02em}
-.day-h em{font-style:normal; font-family:var(--mono); font-size:12px; color:var(--slate)}
-.day-body{display:grid; gap:16px; padding:22px}
-/* Четыре селекта в ряд просят места: на планшете ставим их парами, в один ряд
-   разворачиваем только на широком экране, иначе подписи приёмов ломаются. */
+.day{border:1px solid var(--line); border-radius:12px; background:#FFFFFF;
+  margin-top:26px; overflow:hidden; box-shadow:0 4px 16px rgba(22, 36, 43, 0.04)}
+.day-h{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  padding:16px 20px; border-bottom:1px solid var(--line); background:#F8FAFC}
+.day-h-title{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.day-h-title b{font-family:var(--disp); font-size:18px; letter-spacing:-.02em; color:var(--steel)}
+.day-h-title em{font-style:normal; font-family:var(--mono); font-size:12.5px; color:var(--slate)}
+.day-body{display:grid; gap:16px; padding:20px}
 @media(min-width:620px){.day-body{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:1000px){.day-body{grid-template-columns:repeat(4,1fr)}}
 .pick label{display:block; font-family:var(--mono); font-size:10.5px;
   letter-spacing:.1em; text-transform:uppercase; color:var(--slate); margin-bottom:6px}
-.pick select{width:100%; font-family:var(--body); font-size:14.5px; color:var(--steel);
-  padding:9px 10px; border:1px solid var(--line); border-radius:3px; background:#fff; cursor:pointer}
-.pick select:hover{border-color:var(--brine)}
+.pick select{width:100%; font-family:var(--body); font-size:14px; color:var(--steel);
+  padding:9px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; cursor:pointer;
+  outline:none; transition:border-color .15s ease, box-shadow .15s ease}
+.pick select:focus, .pick select:hover{border-color:var(--brine); box-shadow:0 0 0 3px rgba(20, 108, 126, 0.12)}
 .pick p{margin:8px 0 0; font-family:var(--mono); font-size:11.5px; color:var(--slate)}
-.day-f{padding:14px 22px; border-top:1px solid var(--line); background:#EFF4F5;
+.day-f{padding:14px 20px; border-top:1px solid var(--line); background:#F8FAFC;
   display:flex; gap:10px 18px; flex-wrap:wrap; align-items:center;
   font-family:var(--mono); font-size:12px; color:var(--slate)}
 .day-f b{color:var(--steel); font-weight:500}
 
 /* ---- сводка месяца ---- */
 .sum{display:grid; gap:1px; margin-top:24px; background:var(--line);
-  border:1px solid var(--line); border-radius:4px; overflow:hidden}
+  border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  box-shadow:0 4px 16px rgba(22, 36, 43, 0.04)}
 @media(min-width:620px){
   .sum{grid-template-columns:repeat(2,1fr)}
-  /* пять плиток на два столбца не делятся — последнюю растягиваем, иначе
-     в сетке зияет пустая клетка цвета линии */
   .sum div:last-child{grid-column:1 / -1}
 }
 @media(min-width:960px){
   .sum{grid-template-columns:repeat(5,1fr)}
   .sum div:last-child{grid-column:auto}
 }
-.sum div{background:var(--frost); padding:16px 18px}
-.sum span{display:block; font-family:var(--mono); font-size:11px; letter-spacing:.1em;
-  text-transform:uppercase; color:var(--slate); margin-bottom:5px}
-.sum b{font-family:var(--disp); font-size:21px; letter-spacing:-.02em}
+.sum div{background:#FFFFFF; padding:18px 20px; display:flex; flex-direction:column; justify-content:flex-start; box-sizing:border-box}
+.sum span{display:flex; align-items:flex-start; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:8px; min-height:28px; line-height:1.35}
+.sum b{font-family:var(--disp); font-size:22px; letter-spacing:-.02em; color:var(--steel); line-height:1.1}
 .sum-note{margin:12px 0 0; max-width:62ch; font-size:14px; color:var(--slate)}
 .hint{margin:0 0 24px; max-width:58ch; font-size:15px; color:var(--slate)}
 </style>
@@ -127,16 +198,35 @@
   </section>
 
   <div class="cal-ctl noprint">
-    <button class="btn" id="prev" aria-label="Предыдущий месяц">←</button>
-    <span class="mon" id="mon"></span>
-    <button class="btn" id="next" aria-label="Следующий месяц">→</button>
-    <select id="cal-saved-plans-select" class="saved-plans-select" title="Выберите рацион для разложения">
-      <option value="draft">Текущий черновик из конструктора</option>
-    </select>
-    <button class="btn btn-solid" id="apply">Разложить в календарь</button>
-    <button class="btn" id="btn-export-pdf" onclick="exportCalendarPDF()">Экспорт в PDF</button>
-    <button class="btn" id="btn-export-jpg" onclick="exportCalendarJPG()">Скачать JPG</button>
-    <button class="btn" id="wipe">Очистить месяц</button>
+    <div class="cal-ctl-row top-row">
+      <div class="cal-nav-group">
+        <button class="btn" id="prev" aria-label="Предыдущий месяц">←</button>
+        <span class="mon" id="mon"></span>
+        <button class="btn" id="next" aria-label="Следующий месяц">→</button>
+      </div>
+      <div class="cal-deploy-group">
+        <select id="cal-saved-plans-select" class="saved-plans-select" title="Выберите рацион для разложения">
+          <option value="draft">Текущий черновик из конструктора</option>
+        </select>
+        <button class="btn btn-solid" id="apply">Разложить в календарь</button>
+      </div>
+    </div>
+
+    <div class="cal-ctl-row bottom-row">
+      <div class="cal-tools-group">
+        <button class="btn" id="btn-export-pdf" onclick="exportCalendarPDF()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span>Экспорт в PDF</span>
+        </button>
+        <button class="btn" id="btn-export-jpg" onclick="exportCalendarJPG()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>Скачать JPG</span>
+        </button>
+      </div>
+      <div class="cal-danger-group">
+        <button class="btn btn-danger-link" id="wipe">Очистить месяц</button>
+      </div>
+    </div>
   </div>
   <p class="hint">Точки в клетке — заполненные приёмы: <b>жёлтая</b> завтрак,
     <b>синяя</b> обед, <b>зелёная</b> ужин, <b>фиолетовая</b> перед сном.</p>
@@ -168,6 +258,8 @@
 <script>
 var MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь',
               'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+var MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня',
+                  'июля','августа','сентября','октября','ноября','декабря'];
 var DOW = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
 
 var cal = load('mp-cal', {});          /* { '2026-07-31': {b:id,l:id,d:id,n:id} } */
@@ -288,24 +380,34 @@ function drawDay() {
 
   var addHtml = '';
   if (add.items && add.items.length) {
-    addHtml = '<div class="day-addons" style="padding:14px 22px; background:#FAFDFC; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:8px">' +
-      '<div style="font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--brine); font-weight:600; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px">' +
-        '<span>Добрать до нормы · ' + add.sum.kcal + ' ккал</span>' +
-        '<span style="font-weight:400; color:var(--slate)">+' + add.sum.p + ' Б · +' + add.sum.fib + ' г клетчатки</span>' +
+    addHtml = '<div class="day-addons" style="padding:16px 20px; background:#F8FAFC; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:12px">' +
+      '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">' +
+        '<div style="font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--brine); font-weight:600; display:flex; align-items:center; gap:6px">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+          '<span>Добор до нормы дня</span>' +
+        '</div>' +
+        '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-family:var(--mono); font-size:11.5px">' +
+          '<span style="background:#FFFFFF; padding:4px 10px; border-radius:6px; border:1px solid var(--line); color:var(--steel); font-weight:600">+' + add.sum.kcal + ' ккал</span>' +
+          '<span style="background:#EFF6FF; padding:4px 10px; border-radius:6px; border:1px solid #BFDBFE; color:#1D4ED8; font-weight:600">+' + add.sum.p + ' г белка</span>' +
+          '<span style="background:#ECFDF5; padding:4px 10px; border-radius:6px; border:1px solid #A7F3D0; color:#047857; font-weight:600">+' + add.sum.fib + ' г клетчатки</span>' +
+        '</div>' +
       '</div>' +
-      '<div style="display:flex; flex-wrap:wrap; gap:6px 12px; font-size:13px; color:var(--steel)">' +
+      '<div style="display:flex; flex-wrap:wrap; gap:8px; font-size:13.5px; color:var(--steel); align-items:center">' +
+        '<span style="font-family:var(--mono); font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:.05em; margin-right:4px">Рекомендуется добавить:</span>' +
         add.items.map(function(x) {
-          return '<span style="background:var(--ing-bg); padding:3px 8px; border-radius:3px; border:1px solid var(--line); display:inline-flex; gap:6px; align-items:baseline">' +
-            esc(x.n) + ' <b style="font-family:var(--mono); font-weight:600; font-size:12px; color:var(--brine)">' + esc(x.q) + '</b></span>';
+          return '<span style="background:#FFFFFF; padding:6px 14px; border-radius:8px; border:1px solid var(--line); display:inline-flex; gap:8px; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,0.03)">' +
+            esc(x.n) + ' <b style="font-family:var(--mono); font-weight:600; font-size:12px; color:var(--brine); background:var(--ing-bg); padding:2px 7px; border-radius:6px; border:1px solid var(--line)">' + esc(x.q) + '</b></span>';
         }).join('') +
       '</div>' +
     '</div>';
   }
 
   document.getElementById('day').innerHTML =
-    '<div class="day-h"><b>' + d.getDate() + ' ' + MONTHS[d.getMonth()].toLowerCase() + '</b>' +
-      '<em>' + DOW[d.getDay()] + '</em>' +
-      (picked === todayKey ? '<span class="badge l">сегодня</span>' : '') + '</div>' +
+    '<div class="day-h">' +
+      '<div class="day-h-title"><b>' + d.getDate() + ' ' + MONTHS_GEN[d.getMonth()] + '</b>' +
+      '<em>' + DOW[d.getDay()] + '</em></div>' +
+      (picked === todayKey ? '<span class="badge l">сегодня</span>' : '') +
+    '</div>' +
     '<div class="day-body">' + MEALS.map(function (m) {
       var cur = e[m.key] || '';
       var dish = BY_ID[cur];
@@ -366,9 +468,9 @@ function drawSum() {
     sumEl.innerHTML =
       box('Дней спланировано', days || '—') +
       box('Приёмов расставлено', slots ? slots + ' / ' + (days * MEALS.length) : '—') +
-      box('Калорий в среднем за день', days ? Math.round(kcal / days) : '—') +
-      box('Белка в среднем за день', days ? Math.round(prot / days) + ' г' : '—') +
-      box('Клетчатки в среднем за день', days ? Math.round(fib / days) + ' г' : '—');
+      box('Калории в день', days ? Math.round(kcal / days) : '—') +
+      box('Белок в день', days ? Math.round(prot / days) + ' г' : '—') +
+      box('Клетчатка в день', days ? Math.round(fib / days) + ' г' : '—');
   }
 }
 function box(label, value) {

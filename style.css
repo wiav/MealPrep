@@ -142,8 +142,9 @@ ul{margin:0; padding:0; list-style:none}
 /* ---- правила-спойлер ---- */
 .rules-spoiler{margin-top:14px}
 .rules-summary{font-family:var(--mono); font-size:12px; letter-spacing:.12em;
-  text-transform:uppercase; color:var(--brine); cursor:pointer; padding:12px 16px;
-  border:1px solid var(--line); border-radius:4px; background:var(--frost);
+  text-transform:uppercase; color:var(--brine); cursor:pointer; padding:14px 18px;
+  border:1px solid var(--line); border-radius:12px; background:#FFFFFF;
+  box-shadow:0 4px 16px rgba(22, 36, 43, 0.04);
   display:flex; justify-content:space-between; align-items:center; user-select:none; transition:.15s}
 .rules-summary:hover{border-color:var(--brine); background:var(--ing-bg)}
 .rules-summary::-webkit-details-marker{display:none}
@@ -157,25 +158,27 @@ ul{margin:0; padding:0; list-style:none}
 
 /* ---- правила ---- */
 .rules{display:grid; gap:16px; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
-  padding:24px; border:1px solid var(--line); background:var(--frost); border-radius:4px}
+  padding:24px; border:1px solid var(--line); background:#FFFFFF; border-radius:12px;
+  box-shadow:0 4px 16px rgba(22, 36, 43, 0.04)}
 .rule h3{font-family:var(--mono); font-size:13px; color:var(--brine); margin-bottom:6px}
 .rule p{margin:0; font-size:14.5px; color:var(--slate)}
 
 /* ---- поиск и фильтрация ---- */
 .search-wrap{position:relative; display:flex; align-items:center; margin-bottom:8px}
 .search-input{width:100%; font-family:var(--body); font-size:15px; padding:11px 44px 11px 38px;
-  border:1px solid var(--line); border-radius:3px; background:var(--frost); color:var(--steel); transition:.15s}
-.search-input:focus{border-color:var(--brine); outline:none; background:var(--ing-bg); box-shadow:0 0 0 1px var(--brine)}
+  border:1px solid var(--line); border-radius:8px; background:#FFFFFF; color:var(--steel); transition:.15s}
+.search-input:focus{border-color:var(--brine); outline:none; background:#FFFFFF; box-shadow:0 0 0 3px rgba(20, 108, 126, 0.12)}
 .search-icon{position:absolute; left:12px; font-size:14px; color:var(--slate); pointer-events:none}
 .search-kbd{position:absolute; right:12px; font-family:var(--mono); font-size:11px; color:var(--slate);
-  background:var(--ice); border:1px solid var(--line); border-radius:3px; padding:2px 6px; pointer-events:none}
+  background:var(--ice); border:1px solid var(--line); border-radius:6px; padding:2px 6px; pointer-events:none}
 .count-row{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
 .btn-reset{font-family:var(--mono); font-size:11.5px; color:var(--brine); background:none; border:none;
-  cursor:pointer; padding:4px 8px; border-radius:3px; transition:.15s}
+  cursor:pointer; padding:4px 8px; border-radius:6px; transition:.15s}
 .btn-reset:hover{background:var(--frost); color:var(--steel)}
 
 /* ---- пустая выдача ---- */
-.empty-card{border:1px solid var(--line); border-radius:4px; background:var(--frost);
+.empty-card{border:1px solid var(--line); border-radius:12px; background:#FFFFFF;
+  box-shadow:0 4px 16px rgba(22, 36, 43, 0.04);
   padding:44px 24px; text-align:center; margin:36px auto}
 .empty-card h3{font-family:var(--disp); font-size:20px; letter-spacing:-.02em; margin-bottom:8px}
 .empty-card p{color:var(--slate); font-size:15px; margin-bottom:20px}
@@ -187,19 +190,38 @@ ul{margin:0; padding:0; list-style:none}
 .sec-h b{color:var(--steel); font-weight:500}
 
 /* ---- подпись: полоса долей калорий ---- */
-.proof{margin-top:48px; border-top:1px solid var(--line); padding-top:26px}
-.proof-h{display:flex; justify-content:space-between; align-items:baseline;
-  gap:12px; flex-wrap:wrap; margin-bottom:18px}
-.proof-h h2{font-family:var(--mono); font-weight:500; font-size:12px;
-  letter-spacing:.14em; text-transform:uppercase; color:var(--slate)}
-.key{display:flex; gap:18px; font-family:var(--mono); font-size:12px; flex-wrap:wrap}
-.key i{display:inline-block; width:9px; height:9px; margin-right:6px; border-radius:2px}
+.proof{
+  background:#FFFFFF;
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:0 4px 16px rgba(22, 36, 43, 0.04);
+  padding:22px 26px;
+  margin-top:24px;
+}
+.proof-spoiler[open] .rules-summary{
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+  border-bottom:0;
+}
+.proof-spoiler[open] .proof{
+  margin-top:0;
+  border-top:0;
+  border-top-left-radius:0;
+  border-top-right-radius:0;
+  box-shadow:0 8px 24px rgba(22, 36, 43, 0.04);
+}
+.proof-h{display:flex; justify-content:space-between; align-items:center;
+  gap:12px; flex-wrap:wrap; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--line)}
+.proof-h h2{font-family:var(--mono); font-weight:600; font-size:11.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--slate); margin:0}
+.key{display:flex; gap:18px; font-family:var(--body); font-size:13px; font-weight:500; color:var(--steel); flex-wrap:wrap}
+.key i{display:inline-block; width:10px; height:10px; margin-right:6px; border-radius:3px; vertical-align:middle}
 .k-p i{background:var(--brine)} .k-f i{background:var(--yolk)} .k-c i{background:var(--dill)}
-.bars{display:grid; gap:12px}
-.bar-row{display:grid; grid-template-columns:110px minmax(0,1fr) auto; gap:16px; align-items:center}
-.bar{display:flex; height:32px; border-radius:3px; overflow:hidden;
-  background:var(--frost); box-shadow:inset 0 0 0 1px var(--line)}
-.seg{display:grid; place-items:center; font-family:var(--mono); font-size:12px;
+.bars{display:grid; gap:14px}
+.bar-row{display:grid; grid-template-columns:110px minmax(0,1fr) 75px; gap:16px; align-items:center}
+.bar{display:flex; height:34px; border-radius:8px; overflow:hidden;
+  background:#F1F5F9; box-shadow:inset 0 0 0 1px var(--line)}
+.seg{display:grid; place-items:center; font-family:var(--body); font-size:13px;
   color:#fff; font-weight:600; min-width:0; overflow:hidden; white-space:nowrap;
   margin-right:-1px; position:relative;
   transform:scaleX(0); transform-origin:left;
@@ -209,11 +231,11 @@ ul{margin:0; padding:0; list-style:none}
 @keyframes grow{to{transform:scaleX(1)}}
 .seg span{opacity:0; animation:fade .3s .6s forwards}
 @keyframes fade{to{opacity:1}}
-.bar-cal{font-family:var(--mono); font-size:13px; color:var(--slate); white-space:nowrap}
+.bar-cal{font-family:var(--mono); font-size:12.5px; color:var(--slate); white-space:nowrap; text-align:right; font-weight:500}
 
 /* ---- быстрая навигация по группам (сворачиваемая) ---- */
 .jump{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-bottom:28px}
-.jump-col{border:1px solid var(--line); border-radius:4px; background:var(--frost); overflow:hidden; transition:.15s}
+.jump-col{border:1px solid var(--line); border-radius:12px; background:#FFFFFF; box-shadow:0 4px 16px rgba(22, 36, 43, 0.04); overflow:hidden; transition:.15s}
 .jump-summary{padding:14px 18px; cursor:pointer; user-select:none; display:flex; justify-content:space-between; align-items:center; list-style:none; transition:.12s}
 .jump-summary::-webkit-details-marker{display:none}
 .jump-summary:hover{background:var(--ing-bg)}
@@ -235,7 +257,8 @@ ul{margin:0; padding:0; list-style:none}
 .group-h p{margin:10px 0 0; color:var(--slate); max-width:60ch; font-size:16.5px}
 
 /* ---- рецепт ---- */
-.rec{border:1px solid var(--line); border-radius:4px; background:var(--frost);
+.rec{border:1px solid var(--line); border-radius:12px; background:#FFFFFF;
+  box-shadow:0 4px 16px rgba(22, 36, 43, 0.04);
   overflow:hidden; margin-bottom:22px; scroll-margin-top:20px}
 .rec-head{display:flex; align-items:baseline; gap:10px 14px; flex-wrap:wrap;
   padding:22px 26px; border-bottom:1px solid var(--line)}
@@ -260,7 +283,7 @@ ul{margin:0; padding:0; list-style:none}
 .rec-steps li:last-child{padding-bottom:0}
 .rec-steps b{font-weight:600}
 .note{margin-top:18px; padding:13px 15px; border-left:3px solid var(--yolk);
-  background:var(--note-bg); font-size:14.5px; color:var(--steel)}
+  background:var(--note-bg); font-size:14.5px; color:var(--steel); border-radius:6px}
 .note b{font-weight:600}
 .keep{padding:15px 26px; border-top:1px solid var(--line);
   font-family:var(--mono); font-size:12.5px; color:var(--slate);
@@ -269,7 +292,7 @@ ul{margin:0; padding:0; list-style:none}
 
 /* ---- метка типа приёма ---- */
 .badge{font-family:var(--mono); font-size:11px; letter-spacing:.1em;
-  text-transform:uppercase; padding:4px 9px; border-radius:3px;
+  text-transform:uppercase; padding:4px 9px; border-radius:6px;
   border:1px solid currentColor; white-space:nowrap; font-weight:600}
 .badge.b{color:var(--badge-b)}
 .badge.l{color:var(--badge-l)}
@@ -311,7 +334,7 @@ ul{margin:0; padding:0; list-style:none}
   letter-spacing: 0;
   text-transform: none;
   padding: 0 18px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid var(--line);
   background: #FFFFFF;
   color: var(--steel);
@@ -362,7 +385,7 @@ select.saved-plans-select, select.cal-saved-plans-select, .cal-ctl select, .plan
   font-size: 13.5px;
   padding: 0 14px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 8px;
   background: #FFFFFF;
   color: var(--steel);
   outline: none;
@@ -380,15 +403,15 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
 /* ---- панель выбора длины и режима рациона ---- */
 .plan-deploy-panel {
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--frost);
+  border-radius: 12px;
+  background: #FFFFFF;
   padding: 18px 24px;
   margin-bottom: 24px;
   display: flex;
   flex-wrap: wrap;
   gap: 16px 28px;
   align-items: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 16px rgba(22, 36, 43, 0.04);
 }
 .deploy-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .days-chips, .mode-chips { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -402,7 +425,7 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
   font-weight: 500;
   letter-spacing: 0;
   padding: 0 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid var(--line);
   background: #FFFFFF;
   color: var(--steel);
@@ -480,7 +503,7 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
 /* ---- табы категорий ---- */
 .tabs-bar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px}
 .tab-chip{font-family:var(--mono); font-size:12.5px; letter-spacing:.03em;
-  padding:8px 15px; border-radius:4px; border:1px solid var(--line);
+  padding:8px 15px; border-radius:8px; border:1px solid var(--line);
   background:var(--frost); color:var(--steel); cursor:pointer; transition:.15s;
   display:inline-flex; align-items:center; gap:6px}
 .tab-chip:hover{border-color:var(--brine); color:var(--brine)}
@@ -493,10 +516,11 @@ select.saved-plans-select:focus, select.cal-saved-plans-select:focus, .cal-ctl s
 @media(max-width:640px){.recipes-grid-3col{grid-template-columns:1fr}}
 
 /* ---- компактная карточка рецепта ---- */
-.rec-card-compact{border:1px solid var(--line); border-radius:5px; background:var(--frost);
-  padding:18px 20px; display:flex; flex-direction:column; gap:8px; transition:.18s;
+.rec-card-compact{border:1px solid var(--line); border-radius:12px; background:#FFFFFF;
+  box-shadow:0 4px 16px rgba(22, 36, 43, 0.04);
+  padding:18px 20px; display:flex; flex-direction:column; gap:8px; transition:all .2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor:pointer; position:relative; height:100%; text-align:left !important; align-items:stretch !important}
-.rec-card-compact:hover{border-color:var(--brine); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.rec-card-compact:hover{border-color:var(--brine); transform:translateY(-2px); box-shadow:0 8px 24px rgba(20, 108, 126, 0.12)}
 .rec-card-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; min-height:38px; margin-bottom:4px; width:100%; text-align:left}
 .rec-card-compact h3{font-family:var(--disp); font-size:16px; line-height:1.3; margin:4px 0 8px; letter-spacing:-.015em; color:var(--steel); min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-align:left !important; width:100%}
 .rec-card-meta{display:flex; flex-wrap:wrap; justify-content:flex-end; text-align:right; font-family:var(--mono); font-size:11px; color:var(--slate); line-height:1.3}
